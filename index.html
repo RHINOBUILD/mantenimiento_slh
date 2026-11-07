@@ -216,7 +216,8 @@ details.instr ol{margin:8px 0 0;padding-left:20px}
 .pf .ph .ttl .c{font:italic 600 10px Arial;color:#1E73BE}
 .pf .ph .ttl b{display:block;font:700 14px Georgia,serif;color:#5B2A86;text-transform:uppercase}
 .pf .meta{display:flex;gap:24px;margin-bottom:6px;font-weight:700}
-.pf table{font-size:9px;border:1px solid #1E73BE}
+.pf table{font-size:9px;border:1px solid #1E73BE;table-layout:fixed;width:100%}
+.pf td,.pf th{overflow-wrap:anywhere;hyphens:auto}
 .pf th{background:#D9EAF7;color:#1E5A96;font:700 8.5px Arial;text-transform:uppercase;border:1px solid #1E73BE;white-space:normal;text-align:center;letter-spacing:0}
 .pf td{border:1px solid #1E73BE;padding:3px 4px}
 .pf td.out{color:#B8322A}
@@ -520,7 +521,7 @@ const Demo = (() => {
       R('SLH-MAN-001', h, { bancadaIzq: i, bancadaDer: d, dewar: 230, tanquesVacios: k === 5 ? 0 : k, tanquesLlenos: k === 5 ? 6 : 6 - k, areaLimpia: 'Sí', lbsIzq: 340, lbsDer: 20, cambio: k === 5 ? 'Sí' : 'No', cambioBancada: k === 5 ? 'Izquierda' : '', cambioNum: k === 5 ? 3 : '', obs: k === 5 ? 'Se cambió bancada izquierda completa.' : '' }, h > 20));
     [[96, 1900, 780], [72, 1880, 760], [48, 1860, 750], [26, 1840, 735]].forEach(([h, a, b]) => R('SLH-GAS-001', h, { presionN2: a, presionCO2: b, obs: '' }, true));
     [[96, 7.2, 0.8, 85], [72, 7.1, 0.6, 80], [48, 7.3, 0.5, 78], [24, 7.0, 0.15, 74], [3, 7.1, 0.9, 90]].forEach(([h, ph, cl, nv], k) =>
-      R('SLH-AGUA-001', h, { cisPh: ph, cisCl: cl, cisNivel: nv, ceyePh: 7.1, ceyeCl: cl - 0.05, uciPh: 7.0, uciCl: cl - 0.1 > 0 ? +(cl - 0.1).toFixed(2) : 0.05, lugar: 'Cocina', lugPh: 7.2, lugCl: cl, quiPh: 7.1, quiCl: cl, cloroAplicado: k === 3 ? 'Sí' : 'No', obs: k === 3 ? 'Cloro bajo; se aplicó hipoclorito a la cisterna.' : '' }, h > 20));
+      R('SLH-AGUA-001', h, { cisPh: ph, cisCl: cl, cisNivel: nv, ceyePh: 7.1, ceyeCl: +(cl - 0.05).toFixed(2), uciPh: 7.0, uciCl: cl - 0.1 > 0 ? +(cl - 0.1).toFixed(2) : 0.05, lugar: 'Cocina', lugPh: 7.2, lugCl: cl, quiPh: 7.1, quiCl: cl, cloroAplicado: k === 3 ? 'Sí' : 'No', obs: k === 3 ? 'Cloro bajo; se aplicó hipoclorito a la cisterna.' : '' }, h > 20));
     R('SLH-PE-001', 170, { nivelAgua: 'Correcto', nivelAceite: 'Correcto', diesel: 85, tipoPrueba: 'En vacío', tiempoArranque: 8, modoArranque: 'Automático', danos: 'No', obs: 'Prueba semanal sin novedad.' }, true);
     R('SLH-PE-001', 26, { nivelAgua: 'Correcto', nivelAceite: 'Bajo', diesel: 80, tipoPrueba: 'Con carga', tiempoArranque: 9, modoArranque: 'Automático', danos: 'No', obs: 'Se repuso aceite.' }, false);
     R('SLH-AC-01', 300, { tipoServicio: 'Preventivo', reparacion: 'Limpieza de filtros y serpentín, revisión de presiones de gas.', ejecutor: 'Proveedor externo', proveedor: 'Clima del Cabo · técnico J. Pérez' }, true);
