@@ -29,14 +29,15 @@ Abre `index.html` (o publícalo en GitHub Pages) con `API_URL` vacío. Entra en 
 > La cámara solo funciona en HTTPS (GitHub Pages lo cumple) y con permiso del navegador.
 
 ## Conectar el backend
-1. Crea una Google Sheet nueva: **Mantenimiento SLH · Base de datos**.
-2. Extensiones › Apps Script. Crea los archivos `Code.gs` y `Formatos.gs` y pega su contenido. En Configuración del proyecto activa "Mostrar archivo de manifiesto" y pega `appsscript.json`.
-3. Ejecuta `setup()` una vez y autoriza. Crea las hojas (una por bitácora, con las columnas del formato en papel), la carpeta de Drive y datos de prueba.
-4. En **Config** llena `CORREOS_SH`, `CORREOS_MANTENIMIENTO` y `URL_APP`.
-5. En **Usuarios** da de alta al personal real y borra los de prueba. Roles: `TECNICO`, `AREA` (jefe de área), `MANTENIMIENTO`, `SH`, `ADMIN`.
-6. Implementar › Nueva implementación › Aplicación web · Ejecutar como: **Yo** · Acceso: **Cualquier usuario**. Copia la URL `/exec`.
-7. Pega esa URL en `CONFIG.API_URL` de `index.html` y súbelo a GitHub.
-8. Activadores › `revisarVencidos` · Por tiempo · Cada hora, para avisar por correo de bitácoras vencidas.
+La base de datos ya está lista: **Mantenimiento SLH · Base de datos** (`1u-YqZwgfMmMt4_aDr7ot7BkZkwXUrnIewx5U5oMQLhw`), con las hojas Usuarios, Puntos, Registros, Tickets, Config y una hoja por bitácora. `Code.gs` ya apunta a ella.
+
+1. Abre la hoja › Extensiones › Apps Script.
+2. Crea los archivos `Code.gs` y `Formatos.gs` y pega su contenido. En Configuración del proyecto activa "Mostrar archivo de manifiesto" y pega `appsscript.json`.
+3. Ejecuta `setup()` una vez y autoriza (crea la carpeta de fotos en Drive; no toca los datos).
+4. Implementar › Nueva implementación › Aplicación web · Ejecutar como: **Yo** · Acceso: **Cualquier usuario**. Copia la URL `/exec`.
+5. Pega esa URL en `CONFIG.API_URL` de `index.html` (o pásamela) y súbelo a GitHub.
+6. En **Usuarios** da de alta al personal real con su correo y borra los de prueba. En **Config** llena `CORREOS_SH` y `CORREOS_MANTENIMIENTO`.
+7. Activadores › `revisarVencidos` · Por tiempo · Cada hora.
 
 ## Cómo funciona
 - **Firma:** cada usuario dibuja su firma una vez ("Mi firma"); se coloca en cada registro que hace o revisa, con fecha y hora del servidor.

@@ -9,7 +9,8 @@
  * (FO-SLH-MTO-001, -002, -005, -006, -007, -009, PRESION) con las mismas columnas del papel.
  * Fotos y firmas: carpeta de Drive (Config › CARPETA_FOTOS).
  *
- * Instalación: ejecuta setup() una vez → Implementar › Nueva implementación › Aplicación web
+ * La base de datos ya está preparada en la hoja SHEET_ID; el proyecto puede ser independiente o ligado a la hoja.
+ * Instalación: ejecuta setup() una vez (solo autoriza y crea la carpeta de fotos) → Implementar › Nueva implementación › Aplicación web
  * (Ejecutar como: Yo · Acceso: Cualquier usuario) → pega la URL /exec en CONFIG.API_URL del index.html.
  */
 
@@ -21,10 +22,12 @@ const HOJAS = {
   Config: ['clave', 'valor']
 };
 const SESION_SEG = 21600; // 6 h, máximo de CacheService
+const SHEET_ID = '1u-YqZwgfMmMt4_aDr7ot7BkZkwXUrnIewx5U5oMQLhw'; // Mantenimiento SLH · Base de datos
+function libro() { return SpreadsheetApp.openById(SHEET_ID); }
 
 /* ===================== INSTALACIÓN ===================== */
 function setup() {
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const ss = libro();
   Object.keys(HOJAS).forEach(function (n) { encabezar(ss, n, HOJAS[n]); });
   ['Usuarios', 'Registros', 'Tickets'].forEach(function (n) { ss.getSheetByName(n).getRange('A:AA').setNumberFormat('@'); });
   ss.getSheetByName('Puntos').getRange('A:G').setNumberFormat('@');
@@ -32,9 +35,8 @@ function setup() {
 
   const cfg = ss.getSheetByName('Config');
   if (cfg.getLastRow() === 1) {
-    const carpeta = DriveApp.createFolder('Mantenimiento SLH · Fotos y firmas');
     cfg.getRange(2, 1, 5, 2).setValues([
-      ['CARPETA_FOTOS', carpeta.getId()],
+      ['CARPETA_FOTOS', ''],
       ['CORREOS_SH', ''],            // correos extra de Seguridad e Higiene, separados por coma
       ['CORREOS_MANTENIMIENTO', ''], // correos extra del jefe de mantenimiento
       ['URL_APP', ''],               // URL de GitHub Pages, para los enlaces de los correos
@@ -62,6 +64,7 @@ function setup() {
       ['SLH-OX-001', 'Cilindro de oxígeno tipo H', 'PRESION', SJC, 'Urgencias · cubículo 3', 'psi', '{"valor":[500,2200]}', '', 'SI']
     ]);
   }
+  carpetaFotos();
   Logger.log('Listo. Ahora implementa como aplicación web.');
 }
 function encabezar(ss, nombre, cols) {
@@ -131,7 +134,7 @@ function usuario(numero) { return tabla('Usuarios').find(function (x) { return S
 function publico(u) { return { numero: String(u.numero), nombre: u.nombre, rol: u.rol, area: u.area, sede: u.sede, firma: u.firma || '' }; }
 
 /* ===================== DATOS ===================== */
-function hoja(n) { return SpreadsheetApp.getActiveSpreadsheet().getSheetByName(n); }
+function hoja(n) { return libro().getSheetByName(n); }
 function tabla(n) {
   const v = hoja(n).getDataRange().getValues(); const h = v.shift();
   return v.map(function (r, i) {
@@ -163,9 +166,19 @@ function guardarImagen(dataUrl, nombre) {
   const m = dataUrl.match(/^data:(image\/[a-z]+);base64,(.+)$/);
   if (!m) return '';
   const blob = Utilities.newBlob(Utilities.base64Decode(m[2]), m[1], nombre + (m[1] === 'image/png' ? '.png' : '.jpg'));
-  const f = DriveApp.getFolderById(config('CARPETA_FOTOS')).createFile(blob);
+  const f = carpetaFotos().createFile(blob);
   f.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
   return f.getId();
+}
+
+/* Carpeta de fotos y firmas: si Config › CARPETA_FOTOS está vacía, la crea y guarda su ID */
+function carpetaFotos() {
+  const id = config('CARPETA_FOTOS');
+  if (id) return DriveApp.getFolderById(id);
+  const carpeta = DriveApp.createFolder('Mantenimiento SLH · Fotos y firmas');
+  const fila = tabla('Config').find(function (x) { return x.clave === 'CARPETA_FOTOS'; });
+  if (fila) hoja('Config').getRange(fila._fila, 2).setValue(carpeta.getId()); else hoja('Config').appendRow(['CARPETA_FOTOS', carpeta.getId()]);
+  return carpeta;
 }
 
 function bootstrap() {

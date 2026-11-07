@@ -52,7 +52,7 @@ const FORMATOS = {
     campos: [
       { k: 'tipoServicio', l: 'Tipo de servicio', col: 'Preventivo o correctivo', t: 'sel', o: ['Preventivo', 'Correctivo'], req: 1 },
       { k: 'reparacion', l: 'Reparación realizada y/o observaciones', col: 'Reparación realizada / observaciones', t: 'area', req: 1 },
-      { k: 'ejecutor', l: '¿Quién realizó el servicio?', col: 'Realizó', t: 'sel', o: ['Personal interno', 'Proveedor externo'], req: 1 },
+      { k: 'ejecutor', l: '¿Quién realizó el servicio?', col: 'Interno o proveedor', t: 'sel', o: ['Personal interno', 'Proveedor externo'], req: 1 },
       { k: 'proveedor', l: 'Proveedor y nombre del técnico externo', col: 'Proveedor', t: 'txt', si: 'ejecutor=Proveedor externo', req: 1 }
     ]
   },
