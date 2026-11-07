@@ -1,0 +1,1310 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Mantenimiento SLH</title>
+<meta name="theme-color" content="#13294B">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@600;700&family=IBM+Plex+Mono:wght@500;600&display=swap">
+<script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+/* Layout: barra institucional navy arriba; una columna en celular y tablas anchas en el panel */
+:root{
+  --navy:#13294B; --navy-2:#1C3A68; --gold:#A87C25; --gold-soft:#F4EAD3;
+  --bg:#F2F4F8; --surface:#FFFFFF; --ink:#101B2D; --muted:#5A6678; --line:#DAE0E9;
+  --ok:#1E7A4C; --ok-soft:#E3F3EA; --warn:#A8670E; --warn-soft:#FBF0DD; --bad:#B8322A; --bad-soft:#FBE6E4;
+  --info:#24569C; --info-soft:#E3ECF8;
+  --f-display:"Barlow Condensed","Arial Narrow",Arial,sans-serif;
+  --f-body:"Barlow",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+  --r:10px;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --navy:#0D1D37; --navy-2:#173158; --gold:#D8B260; --gold-soft:#3A3020;
+  --bg:#0A1222; --surface:#121E35; --ink:#E6EBF2; --muted:#9AA6B8; --line:#26365A;
+  --ok:#4CC08A; --ok-soft:#14352A; --warn:#E3A84A; --warn-soft:#3A2B12; --bad:#EE6B61; --bad-soft:#3D1A1A;
+  --info:#7DA8E8; --info-soft:#16294A; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --navy:#0D1D37; --navy-2:#173158; --gold:#D8B260; --gold-soft:#3A3020;
+  --bg:#0A1222; --surface:#121E35; --ink:#E6EBF2; --muted:#9AA6B8; --line:#26365A;
+  --ok:#4CC08A; --ok-soft:#14352A; --warn:#E3A84A; --warn-soft:#3A2B12; --bad:#EE6B61; --bad-soft:#3D1A1A;
+  --info:#7DA8E8; --info-soft:#16294A; color-scheme:dark}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:16px/1.45 var(--f-body);-webkit-font-smoothing:antialiased;min-height:100vh}
+button,input,select,textarea{font:inherit;color:inherit}
+a{color:var(--info)}
+.wrap{max-width:1180px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.top{background:var(--navy);color:#fff;position:sticky;top:0;z-index:20;padding-top:env(safe-area-inset-top,0px)}
+.top .wrap{display:flex;align-items:center;gap:10px;padding-block:10px}
+.brand{display:flex;align-items:center;gap:10px;min-width:0}
+.mark{width:34px;height:34px;border-radius:8px;background:#C9A24A;color:#13294B;display:grid;place-items:center;font:700 15px var(--f-display);flex:none}
+.brand b{font:700 19px/1 var(--f-display);letter-spacing:.02em;text-transform:uppercase;display:block}
+.brand small{display:block;font-size:12px;opacity:.75;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.top .sp{flex:1}
+.who{text-align:right;font-size:13px;line-height:1.2;min-width:0;overflow:hidden}
+.who span{display:block;opacity:.7;font-size:11px;text-transform:uppercase;letter-spacing:.06em}
+@media (max-width:560px){.who{display:none}.brand small{display:none}}
+.iconbtn{background:transparent;border:1px solid #ffffff40;color:#fff;border-radius:8px;padding:6px 10px;cursor:pointer;font-size:13px;white-space:nowrap}
+.tabs{background:var(--navy-2);overflow-x:auto;scrollbar-width:none}
+.tabs .wrap{display:flex;gap:2px}
+.tab{background:none;border:0;color:#ffffffb8;padding:11px 12px;font:600 15px var(--f-body);border-bottom:3px solid transparent;cursor:pointer;white-space:nowrap}
+.tab.on{color:#fff;border-color:#C9A24A}
+.badge{display:inline-grid;place-items:center;min-width:20px;height:20px;padding:0 6px;border-radius:10px;background:#C9A24A;color:#13294B;font:700 12px var(--f-body);margin-left:6px}
+main{padding-block:18px 60px}
+.demo-bar{background:var(--gold-soft);color:var(--ink);font-size:13px}
+.demo-bar .wrap{padding-block:6px}
+h1,h2,h3{font-family:var(--f-display);letter-spacing:.01em;margin:0;text-wrap:balance}
+h1{font-size:28px;line-height:1.1}
+h2{font-size:22px;line-height:1.15}
+h3{font-size:18px}
+.eyebrow{font:600 12px var(--f-body);text-transform:uppercase;letter-spacing:.09em;color:var(--muted)}
+.code{font:600 12.5px var(--f-mono);color:var(--gold);letter-spacing:.03em}
+.muted{color:var(--muted)}
+.mono{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+.stack{display:flex;flex-direction:column;gap:14px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr));gap:14px}
+.head{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px;min-width:0}
+.sect{display:flex;flex-direction:column;gap:12px;min-width:0}
+/* Formularios */
+label.f{display:flex;flex-direction:column;gap:5px;font-weight:600;font-size:14px;min-width:0}
+label.f small,.hint{font-weight:400;color:var(--muted);font-size:13px}
+input[type=text],input[type=number],input[type=password],input[type=date],input[type=month],input[type=search],select,textarea{width:100%;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:11px 12px;font-size:16px;min-width:0}
+textarea{min-height:88px;resize:vertical}
+input:focus,select:focus,textarea:focus,button:focus-visible,.seg input:focus-visible+span{outline:2px solid var(--gold);outline-offset:1px}
+.numin{display:flex;align-items:center;gap:8px}
+.numin input{font:600 22px var(--f-mono);text-align:right}
+.numin .u{font:600 14px var(--f-mono);color:var(--muted);min-width:34px}
+.numin input.out{border-color:var(--bad);background:var(--bad-soft)}
+fieldset.seg{border:0;margin:0;padding:0;display:flex;flex-direction:column;gap:6px;min-width:0}
+fieldset.seg legend{font-weight:600;font-size:14px;padding:0;margin-bottom:6px}
+.seg .opts{display:flex;flex-wrap:wrap;gap:6px}
+.seg label{position:relative;flex:1 1 auto}
+.seg input{position:absolute;opacity:0;pointer-events:none}
+.seg span{display:block;text-align:center;padding:10px 14px;border:1px solid var(--line);border-radius:8px;background:var(--bg);font-weight:600;cursor:pointer;white-space:nowrap}
+.seg input:checked+span{background:var(--navy-2);border-color:var(--navy-2);color:#fff}
+.checks{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:8px}
+.chk{display:flex;gap:10px;align-items:center;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:10px 12px;font-size:15px;cursor:pointer;font-weight:500}
+.chk input{width:20px;height:20px;accent-color:var(--navy-2);flex:none}
+.grp{border:1px solid var(--line);border-radius:var(--r);padding:12px;display:flex;flex-direction:column;gap:10px}
+.grp>.eyebrow{color:var(--gold)}
+.gfields{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,140px),1fr));gap:10px}
+.alertbox{display:flex;flex-direction:column;gap:6px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:1px solid transparent;border-radius:9px;padding:12px 18px;font:600 16px var(--f-body);cursor:pointer;background:var(--navy-2);color:#fff;text-decoration:none}
+.btn:disabled{opacity:.55;cursor:not-allowed}
+.btn.gold{background:#C9A24A;color:#13294B}
+.btn.ghost{background:transparent;color:var(--ink);border-color:var(--line)}
+.btn.ok{background:var(--ok);color:#fff}
+.btn.bad{background:transparent;color:var(--bad);border-color:var(--bad)}
+.btn.sm{padding:7px 12px;font-size:14px}
+.btn.block{width:100%}
+.chip{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:3px 10px;font:600 12.5px var(--f-body);white-space:nowrap;background:var(--bg);color:var(--muted);border:1px solid var(--line)}
+.chip::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor}
+.chip.ok{background:var(--ok-soft);color:var(--ok);border-color:transparent}
+.chip.warn{background:var(--warn-soft);color:var(--warn);border-color:transparent}
+.chip.bad{background:var(--bad-soft);color:var(--bad);border-color:transparent}
+.chip.info{background:var(--info-soft);color:var(--info);border-color:transparent}
+.chip.plain::before{display:none}
+.chip.wrap{white-space:normal}
+#reader{width:100%;max-width:420px;margin:0 auto;border-radius:12px;overflow:hidden;background:#000}
+.scan-idle{aspect-ratio:1/1;max-width:420px;width:100%;margin:0 auto;border-radius:12px;border:2px dashed var(--line);display:grid;place-items:center;text-align:center;padding:20px;background:var(--surface)}
+.scan-idle svg{width:72px;height:72px;color:var(--gold)}
+.plate{border-left:5px solid #C9A24A;background:var(--surface);border-radius:var(--r);border-top:1px solid var(--line);border-right:1px solid var(--line);border-bottom:1px solid var(--line);padding:14px 16px}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;font-size:14px;margin:10px 0 0}
+.kv dt{color:var(--muted)}
+.kv dd{margin:0;font-weight:600;min-width:0;overflow-wrap:anywhere}
+.kv dd.out{color:var(--bad)}
+.list{display:flex;flex-direction:column;gap:10px}
+.item{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:12px 14px;display:flex;gap:12px;align-items:center;cursor:pointer;text-align:left;width:100%;position:relative;overflow:hidden}
+.item .stripe{position:absolute;left:0;top:0;bottom:0;width:4px}
+.item .body{flex:1;min-width:0}
+.item .t{font-weight:700;overflow-wrap:anywhere}
+.item .m{font-size:13px;color:var(--muted)}
+.p-Urgente{background:var(--bad)} .p-Alta{background:var(--warn)} .p-Media{background:var(--info)} .p-Baja{background:var(--line)}
+.s-ok{background:var(--ok)} .s-warn{background:var(--warn)} .s-bad{background:var(--bad)} .s-plain{background:var(--line)}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,160px),1fr));gap:10px;margin-bottom:16px}
+.kpi{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:12px 14px}
+.kpi .n{font:600 30px/1.1 var(--f-mono);font-variant-numeric:tabular-nums}
+.kpi .l{font-size:13px;color:var(--muted)}
+.kpi.alert .n{color:var(--bad)} .kpi.attn .n{color:var(--warn)}
+.fmtgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:14px}
+.fmt{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;min-width:0}
+.fmt header{padding:12px 14px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:8px;align-items:flex-start}
+.fmt .pt{display:flex;gap:10px;align-items:center;padding:10px 14px;border-bottom:1px solid var(--line);cursor:pointer;background:none;border-left:0;border-right:0;border-top:0;width:100%;text-align:left}
+.fmt .pt:last-child{border-bottom:0}
+.fmt .pt .body{flex:1;min-width:0}
+.fmt .pt .m{font-size:13px;color:var(--muted)}
+.dot{width:10px;height:10px;border-radius:50%;flex:none}
+.tbl-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--r);background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+th{font:600 11.5px var(--f-body);text-transform:uppercase;letter-spacing:.05em;color:var(--muted);background:var(--bg);white-space:nowrap}
+tr:last-child td{border-bottom:0}
+td.num{text-align:right;font-family:var(--f-mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+td.out{color:var(--bad);font-weight:700}
+tr.alerta td:first-child{box-shadow:inset 4px 0 0 var(--bad)}
+tr.click{cursor:pointer}
+tr.click:hover td{background:var(--bg)}
+.ph-in{display:flex;flex-direction:column;gap:8px}
+.ph-drop{border:1.5px dashed var(--line);border-radius:10px;padding:14px;text-align:center;cursor:pointer;background:var(--bg);font-weight:600;color:var(--muted)}
+.ph-drop img{max-height:170px;border-radius:8px;display:block;margin:0 auto 8px}
+.ba{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.ba figure{margin:0}
+.ba img{width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:8px;background:var(--bg);border:1px solid var(--line)}
+.ba figcaption{font:600 12px var(--f-body);text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-top:4px}
+.noph{aspect-ratio:4/3;border-radius:8px;border:1px dashed var(--line);display:grid;place-items:center;color:var(--muted);font-size:13px}
+.sig{border:1.5px solid var(--line);border-radius:10px;background:#fff;touch-action:none;width:100%;height:160px;display:block}
+.sig-img{background:#fff;border-radius:6px;border:1px solid var(--line);max-height:70px;max-width:200px;padding:3px}
+.signs{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr));gap:12px}
+.signs>div{border-top:1px solid var(--line);padding-top:8px;font-size:14px}
+.tl{list-style:none;margin:0;padding:0}
+.tl li{display:grid;grid-template-columns:16px 1fr;gap:10px;padding-bottom:12px;position:relative;font-size:14px}
+.tl li::before{content:"";width:10px;height:10px;border-radius:50%;background:var(--gold);margin-top:5px;margin-left:3px}
+.tl li::after{content:"";position:absolute;left:7px;top:17px;bottom:0;width:2px;background:var(--line)}
+.tl li:last-child::after{display:none}
+.sheet-bg{position:fixed;inset:0;background:#0A122299;z-index:50;display:flex;align-items:flex-end;justify-content:center}
+.sheet{background:var(--surface);width:100%;max-width:760px;max-height:94vh;overflow:auto;border-radius:16px 16px 0 0;padding:18px max(16px,env(safe-area-inset-right,0px)) calc(28px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+@media (min-width:780px){.sheet-bg{align-items:center}.sheet{border-radius:16px}}
+.sheet .close{float:right;margin-left:10px}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:12px 18px;border-radius:10px;z-index:80;font-weight:600;max-width:calc(100% - 32px);box-shadow:0 6px 20px #0004}
+.toast.bad{background:var(--bad);color:#fff}
+.login{min-height:100vh;display:grid;place-items:center;background:var(--navy);padding:24px max(16px,env(safe-area-inset-left,0px))}
+.login .card{width:100%;max-width:400px;padding:24px}
+.login .seal{display:flex;gap:12px;align-items:center;margin-bottom:18px}
+.login .seal .mark{width:48px;height:48px;font-size:20px}
+.demo-users{font-size:13px;margin-top:14px;border-top:1px solid var(--line);padding-top:12px}
+.demo-users button{background:var(--bg);border:1px solid var(--line);border-radius:7px;padding:6px 9px;margin:3px 4px 0 0;cursor:pointer;font-size:13px}
+.empty{padding:24px 16px;text-align:center;color:var(--muted);border:1px dashed var(--line);border-radius:var(--r)}
+.spark{width:100%;height:110px;display:block}
+.filters{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,170px),1fr));gap:8px;margin-bottom:12px}
+details.instr{background:var(--info-soft);border-radius:8px;padding:10px 12px;font-size:14px}
+details.instr summary{cursor:pointer;font-weight:600;color:var(--info)}
+details.instr ol{margin:8px 0 0;padding-left:20px}
+.labels{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px}
+.label{border:1.5px solid #101B2D;border-radius:8px;padding:10px;text-align:center;background:#fff;color:#101B2D;break-inside:avoid}
+.label .qr{display:grid;place-items:center;margin:6px 0}
+.label .qr img,.label .qr canvas{width:140px!important;height:140px!important}
+.label b{font:700 15px var(--f-display);display:block;text-transform:uppercase}
+.label .lid{font:600 13px var(--f-mono)}
+.label small{display:block;font-size:11px;color:#444}
+/* Impresión del formato oficial */
+#printArea{display:none}
+@media print{
+  @page{size:letter landscape;margin:9mm}
+  body.printing>*:not(#printArea){display:none!important}
+  body.printing #printArea{display:block}
+  body:not(.printing) .top,body:not(.printing) .tabs,body:not(.printing) .demo-bar,body:not(.printing) .noprint{display:none!important}
+  body{background:#fff;color:#000}
+  main{padding:0}
+  .labels{grid-template-columns:repeat(3,1fr)}
+}
+.pf{font:10px/1.25 Arial,sans-serif;color:#000;background:#fff}
+.pf .ph{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:3px solid #5B2A86;padding-bottom:6px;margin-bottom:8px}
+.pf .ph .org{font:700 20px Arial;color:#1E73BE}
+.pf .ph .org small{display:block;font:600 10px Arial;color:#1E73BE;letter-spacing:.2em}
+.pf .ph .ttl{text-align:right}
+.pf .ph .ttl .c{font:italic 600 10px Arial;color:#1E73BE}
+.pf .ph .ttl b{display:block;font:700 14px Georgia,serif;color:#5B2A86;text-transform:uppercase}
+.pf .meta{display:flex;gap:24px;margin-bottom:6px;font-weight:700}
+.pf table{font-size:9px;border:1px solid #1E73BE}
+.pf th{background:#D9EAF7;color:#1E5A96;font:700 8.5px Arial;text-transform:uppercase;border:1px solid #1E73BE;white-space:normal;text-align:center;letter-spacing:0}
+.pf td{border:1px solid #1E73BE;padding:3px 4px}
+.pf td.out{color:#B8322A}
+.pf .sig-img{max-height:28px;max-width:90px;border:0;padding:0}
+.pf .foot{margin-top:6px;font-size:8.5px;color:#333}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div id="printArea"></div>
+
+<script>
+/* =========================================================
+   CONFIGURACIÓN
+   API_URL: URL /exec de la aplicación web de Apps Script.
+   Vacía = MODO DEMO (datos de prueba guardados solo en este navegador).
+   ========================================================= */
+const CONFIG = {
+  API_URL: '',
+  ORG: "Saint Luke's Hospitals",
+  POLL_MS: 60000
+};
+
+/* ==== COMPARTIDO INICIO ====
+   Este bloque se copia tal cual a Formatos.gs (backend). Si cambias un formato, cambia ambos. */
+const FORMATOS = {
+  'FO-SLH-MTO-005': {
+    corto: 'Manifold de oxígeno', titulo: 'Bitácora diaria · Manifold (oxígeno)', freq: 24, fotos: 'una',
+    nota: 'Se realiza todos los días; por turno si es necesario.',
+    campos: [
+      { k: 'bancadaIzq', l: 'Bancada izquierda', col: 'Bancada izquierda', t: 'num', u: 'psi', req: 1 },
+      { k: 'bancadaDer', l: 'Bancada derecha', col: 'Bancada derecha', t: 'num', u: 'psi', req: 1 },
+      { k: 'dewar', l: 'Nivel Dewar', col: 'Nivel Dewar', t: 'num', u: 'psi' },
+      { k: 'tanquesVacios', l: 'Tanques vacíos', col: 'Tanques vacíos', t: 'int' },
+      { k: 'tanquesLlenos', l: 'Tanques llenos', col: 'Tanques llenos', t: 'int' },
+      { k: 'areaLimpia', l: 'Área limpia', col: 'Área limpia', t: 'bool', req: 1, bueno: 'Sí' },
+      { k: 'lbsIzq', l: 'Libras usadas el día anterior · bancada izquierda', col: 'Libras día ant. izq.', t: 'num', u: 'lbs' },
+      { k: 'lbsDer', l: 'Libras usadas el día anterior · bancada derecha', col: 'Libras día ant. der.', t: 'num', u: 'lbs' },
+      { k: 'cambio', l: '¿Se cambiaron tanques?', col: 'Cambio de tanques', t: 'bool', req: 1 },
+      { k: 'cambioBancada', l: 'Bancada del cambio', col: 'Bancada del cambio', t: 'sel', o: ['Izquierda', 'Derecha', 'Ambas'], si: 'cambio=Sí', req: 1 },
+      { k: 'cambioNum', l: 'No. de tanques cambiados', col: 'No. tanques', t: 'int', si: 'cambio=Sí', req: 1 },
+      { k: 'obs', l: 'Observaciones', col: 'Observaciones', t: 'area' }
+    ]
+  },
+  'FO-SLH-MTO-006': {
+    corto: 'Nitrógeno / CO2', titulo: 'Bitácora diaria de Nitrógeno / CO2', freq: 24, fotos: 'una',
+    nota: 'Se realiza todos los días; por turno si es necesario.',
+    campos: [
+      { k: 'presionN2', l: 'Presión de nitrógeno', col: 'Presión nitrógeno', t: 'num', u: 'psi', req: 1 },
+      { k: 'presionCO2', l: 'Presión de CO2', col: 'Presión CO2', t: 'num', u: 'psi', req: 1 },
+      { k: 'obs', l: 'Observaciones', col: 'Observaciones', t: 'area' }
+    ]
+  },
+  'FO-SLH-MTO-001': {
+    corto: 'Planta de emergencia', titulo: 'Bitácora de revisión y prueba de planta de emergencia', freq: 168, fotos: 'una',
+    campos: [
+      { k: 'nivelAgua', l: 'Nivel de agua', col: 'Nivel de agua', t: 'sel', o: ['Correcto', 'Bajo'], bueno: 'Correcto', req: 1 },
+      { k: 'nivelAceite', l: 'Nivel de aceite', col: 'Nivel de aceite', t: 'sel', o: ['Correcto', 'Bajo'], bueno: 'Correcto', req: 1 },
+      { k: 'diesel', l: 'Nivel de combustible diésel', col: 'Nivel diésel', t: 'num', u: '%', req: 1 },
+      { k: 'tipoPrueba', l: 'Tipo de prueba', col: 'Tipo de prueba', t: 'sel', o: ['Con carga', 'En vacío'], req: 1 },
+      { k: 'tiempoArranque', l: 'Tiempo de arranque', col: 'Tiempo de arranque', t: 'num', u: 's', req: 1 },
+      { k: 'modoArranque', l: 'Arranque', col: 'Aut / Man', t: 'sel', o: ['Automático', 'Manual'], req: 1 },
+      { k: 'danos', l: '¿Presenta daños en la superficie?', col: 'Daños superficie', t: 'bool', malo: 'Sí', req: 1 },
+      { k: 'obs', l: 'Observaciones', col: 'Observaciones', t: 'area' }
+    ]
+  },
+  'FO-SLH-MTO-002': {
+    corto: 'Aires acondicionados', titulo: 'Bitácora de servicios preventivos y correctivos a los aires acondicionados', freq: 0, fotos: 'antesDespues',
+    colPunto: 'No. A/C',
+    campos: [
+      { k: 'tipoServicio', l: 'Tipo de servicio', col: 'Preventivo o correctivo', t: 'sel', o: ['Preventivo', 'Correctivo'], req: 1 },
+      { k: 'reparacion', l: 'Reparación realizada y/o observaciones', col: 'Reparación realizada / observaciones', t: 'area', req: 1 },
+      { k: 'ejecutor', l: '¿Quién realizó el servicio?', col: 'Realizó', t: 'sel', o: ['Personal interno', 'Proveedor externo'], req: 1 },
+      { k: 'proveedor', l: 'Proveedor y nombre del técnico externo', col: 'Proveedor', t: 'txt', si: 'ejecutor=Proveedor externo', req: 1 }
+    ]
+  },
+  'FO-SLH-MTO-007': {
+    corto: 'Agua potable y cloro', titulo: 'Registro del nivel de agua potable en cisterna y monitorización del cloro residual', freq: 24, fotos: 'una',
+    nota: 'Rango aceptable: cloro residual de 0.2 a 1.5 mg/L y pH de 6.0 a 9.0. Si hay niveles bajos, aplica el cloro necesario hasta alcanzar el rango.',
+    instrucciones: ['Enjuaga el contenedor del kit.', 'Toma la muestra de agua para medir cloro residual y pH.', 'Aplica 5 gotas del reactivo de cloro y 5 gotas del reactivo de pH en cada muestra.', 'Tapa cada muestra y agita para diluir el reactivo.', 'Con buena luz y sobre fondo blanco compara el color de cada muestra y anota el valor.', 'Valida que los resultados estén dentro del rango.'],
+    campos: [
+      { g: 'Cisterna', k: 'cisPh', l: 'pH', col: 'Cisterna pH', t: 'num', u: '', lim: [6, 9], req: 1 },
+      { g: 'Cisterna', k: 'cisCl', l: 'Cloro', col: 'Cisterna Cl', t: 'num', u: 'mg/L', lim: [0.2, 1.5], req: 1 },
+      { g: 'Cisterna', k: 'cisNivel', l: 'Nivel', col: 'Cisterna nivel %', t: 'num', u: '%', req: 1 },
+      { g: 'CEYE', k: 'ceyePh', l: 'pH', col: 'CEYE pH', t: 'num', u: '', lim: [6, 9], req: 1 },
+      { g: 'CEYE', k: 'ceyeCl', l: 'Cloro', col: 'CEYE Cl', t: 'num', u: 'mg/L', lim: [0.2, 1.5], req: 1 },
+      { g: 'UCI', k: 'uciPh', l: 'pH', col: 'UCI pH', t: 'num', u: '', lim: [6, 9], req: 1 },
+      { g: 'UCI', k: 'uciCl', l: 'Cloro', col: 'UCI Cl', t: 'num', u: 'mg/L', lim: [0.2, 1.5], req: 1 },
+      { g: 'Otro punto del hospital', k: 'lugar', l: 'Lugar', col: 'Lugar', t: 'txt' },
+      { g: 'Otro punto del hospital', k: 'lugPh', l: 'pH', col: 'Lugar pH', t: 'num', u: '', lim: [6, 9] },
+      { g: 'Otro punto del hospital', k: 'lugCl', l: 'Cloro', col: 'Lugar Cl', t: 'num', u: 'mg/L', lim: [0.2, 1.5] },
+      { g: 'Quirófano', k: 'quiPh', l: 'pH', col: 'Quirófano pH', t: 'num', u: '', lim: [6, 9], req: 1 },
+      { g: 'Quirófano', k: 'quiCl', l: 'Cloro', col: 'Quirófano Cl', t: 'num', u: 'mg/L', lim: [0.2, 1.5], req: 1 },
+      { g: 'Acción y observaciones', k: 'cloroAplicado', l: '¿Se aplicó cloro para corregir?', col: 'Cloro aplicado', t: 'bool' },
+      { g: 'Acción y observaciones', k: 'obs', l: 'Observaciones', col: 'Observaciones', t: 'area' }
+    ]
+  },
+  'FO-SLH-MTO-009': {
+    corto: 'Mantenimiento de instalaciones', titulo: 'Check list para mantenimiento de instalaciones', freq: 0, fotos: 'antesDespues', libre: true,
+    nota: 'Debe llenarse completo y llevar la firma del área solicitante para ser válido.',
+    campos: [
+      { k: 'area', l: 'Área', col: 'Área', t: 'txt', req: 1 },
+      { k: 'danos', l: 'Daños observados en las instalaciones', col: 'Daños observados', t: 'checks', alerta: 'marcados',
+        o: ['Grietas en paredes', 'Grietas en piso', 'Mobiliario', 'Falta de pintura', 'Pandeo o fractura en columnas', 'Daños en bardas exteriores', 'Daño en plafones', 'Daño en lámparas', 'Daños en fachada', 'Daño en elevador', 'Daño en instalaciones eléctricas, plomería, etc.'] },
+      { k: 'especifique', l: 'Especifique', col: 'Especifique', t: 'txt' },
+      { k: 'actividades', l: 'Actividades realizadas por mantenimiento', col: 'Actividades realizadas', t: 'area', req: 1 },
+      { k: 'firmaArea', l: 'Firma del responsable del área', col: 'Firma del área', t: 'firma', req: 1 }
+    ]
+  },
+  'PRESION': {
+    corto: 'Cilindros y manómetros', titulo: 'Revisión de cilindros y manómetros', freq: 24, fotos: 'una', sinCodigo: true,
+    campos: [
+      { k: 'valor', l: 'Presión leída', col: 'Presión', t: 'num', u: '@', req: 1 },
+      { k: 'verif', l: 'Verificación', col: 'Verificación', t: 'checks', alerta: 'faltantes', o: ['Sin fugas audibles', 'Válvula, regulador y conexiones en buen estado', 'Sujeción adecuada', 'Identificación legible'] },
+      { k: 'obs', l: 'Observaciones', col: 'Observaciones', t: 'area' }
+    ]
+  }
+};
+const ORDEN_FORMATOS = ['FO-SLH-MTO-005', 'FO-SLH-MTO-006', 'FO-SLH-MTO-007', 'FO-SLH-MTO-001', 'FO-SLH-MTO-002', 'FO-SLH-MTO-009', 'PRESION'];
+const ROLES_SUP = ['MANTENIMIENTO', 'SH', 'ADMIN'];
+function esSupervisor(rol) { return ROLES_SUP.indexOf(rol) >= 0; }
+function num(v) { if (v === null || v === undefined || v === '') return null; const n = parseFloat(String(v).replace(',', '.')); return isNaN(n) ? null : n; }
+function unidadDe(c, punto) { return c.u === '@' ? ((punto && punto.unidad) || 'psi') : (c.u || ''); }
+function campoActivo(c, d) { if (!c.si) return true; const p = c.si.split('='); return String(d[p[0]] || '') === p[1]; }
+function limiteDe(c, punto) {
+  const L = punto && punto.limites && punto.limites[c.k];
+  const r = L && (num(L[0]) !== null || num(L[1]) !== null) ? L : c.lim;
+  return r ? [num(r[0]), num(r[1])] : null;
+}
+function frecuenciaDe(punto) {
+  const F = FORMATOS[punto.formato] || {};
+  const f = num(punto.frecuenciaHoras);
+  return f === null ? (F.freq || 0) : f;
+}
+/* Devuelve la lista de alertas de un registro según los rangos del punto o del formato */
+function evaluar(formato, punto, d) {
+  const F = FORMATOS[formato]; const al = [];
+  if (!F) return al;
+  F.campos.forEach(function (c) {
+    if (!campoActivo(c, d)) return;
+    const v = d[c.k];
+    if (c.t === 'num' || c.t === 'int') {
+      const n = num(v); const L = limiteDe(c, punto); if (n === null || !L) return;
+      const nombre = c.g ? c.g + ' ' + c.l : c.l; const u = unidadDe(c, punto);
+      if (L[0] !== null && n < L[0]) al.push(nombre + ': ' + n + (u ? ' ' + u : '') + ' (mínimo ' + L[0] + ')');
+      else if (L[1] !== null && n > L[1]) al.push(nombre + ': ' + n + (u ? ' ' + u : '') + ' (máximo ' + L[1] + ')');
+    } else if (c.bueno !== undefined && v && v !== c.bueno) al.push(c.l + ': ' + v);
+    else if (c.malo !== undefined && v === c.malo) al.push(c.l + ': ' + v);
+    else if (c.t === 'checks') {
+      const sel = Array.isArray(v) ? v : [];
+      if (c.alerta === 'marcados' && sel.length) al.push(c.l + ': ' + sel.join(', '));
+      if (c.alerta === 'faltantes') { const f = c.o.filter(function (x) { return sel.indexOf(x) < 0; }); if (f.length) al.push('No cumple: ' + f.join(', ')); }
+    }
+  });
+  return al;
+}
+/* Valida campos obligatorios; devuelve lista de errores */
+function validar(formato, punto, d) {
+  const F = FORMATOS[formato]; const err = [];
+  F.campos.forEach(function (c) {
+    if (!campoActivo(c, d) || !c.req) return;
+    const v = d[c.k];
+    if (c.t === 'num' || c.t === 'int') { if (num(v) === null) err.push(c.g ? c.g + ' · ' + c.l : c.l); }
+    else if (c.t === 'checks') { /* opcional por naturaleza */ }
+    else if (c.t === 'firma') { if (!v || !d[c.k + 'Nombre']) err.push(c.l + ' (nombre y firma)'); }
+    else if (!v || !String(v).trim()) err.push(c.g ? c.g + ' · ' + c.l : c.l);
+  });
+  return err;
+}
+/* Reglas del flujo de tickets */
+function aplicarAccion(t, d, me) {
+  const ahora = new Date().toISOString(); const p = {}; let estado = null;
+  const sup = esSupervisor(me.rol); const yo = String(me.numero);
+  switch (d.accion) {
+    case 'aceptar':
+      if (['Enviado', 'Reabierto'].indexOf(t.estado) < 0) throw new Error('El ticket ya fue tomado');
+      if (me.rol !== 'TECNICO' && !sup) throw new Error('Sin permiso');
+      estado = 'Aceptado'; p.asignadoA = yo; p.asignadoNombre = me.nombre; p.fechaAceptado = ahora; break;
+    case 'asignar':
+      if (!sup) throw new Error('Solo el jefe de mantenimiento puede asignar');
+      if (!d.tecnico) throw new Error('Elige un técnico');
+      estado = 'Aceptado'; p.asignadoA = String(d.tecnico); p.asignadoNombre = d.tecnicoNombre || d.tecnico; p.fechaAceptado = ahora; break;
+    case 'iniciar':
+      if (String(t.asignadoA) !== yo && !sup) throw new Error('El ticket está asignado a otra persona');
+      if (['Aceptado', 'Reabierto'].indexOf(t.estado) < 0) throw new Error('Primero acepta el ticket');
+      estado = 'En proceso'; p.fechaInicio = ahora; if (d.fotoAntes) p.fotoAntes = d.fotoAntes; break;
+    case 'completar':
+      if (String(t.asignadoA) !== yo && !sup) throw new Error('El ticket está asignado a otra persona');
+      if (['Aceptado', 'En proceso', 'Reabierto'].indexOf(t.estado) < 0) throw new Error('El ticket no está en proceso');
+      if (!d.trabajoRealizado) throw new Error('Describe el trabajo realizado');
+      if (!d.fotoDespues) throw new Error('Agrega la foto del después');
+      estado = 'Realizado'; p.fechaRealizado = ahora; p.trabajoRealizado = d.trabajoRealizado; p.materiales = d.materiales || ''; p.fotoDespues = d.fotoDespues; p.puntoId = d.puntoId || '';
+      if (d.fotoAntes) p.fotoAntes = d.fotoAntes; if (!t.fechaInicio) p.fechaInicio = ahora; break;
+    case 'validar':
+      if (String(t.solicitante) !== yo && !sup) throw new Error('Solo el solicitante puede validar');
+      if (t.estado !== 'Realizado') throw new Error('El ticket aún no está realizado');
+      estado = 'Validado'; p.validadoPor = me.nombre; p.fechaValidado = ahora; p.comentario = d.comentario || ''; break;
+    case 'reabrir':
+      if (String(t.solicitante) !== yo && !sup) throw new Error('Solo el solicitante puede reabrir');
+      if (t.estado !== 'Realizado') throw new Error('Solo se reabre un ticket realizado');
+      if (!d.comentario) throw new Error('Explica qué quedó pendiente');
+      estado = 'Reabierto'; p.comentario = d.comentario; break;
+    case 'cancelar':
+      if (String(t.solicitante) !== yo && !sup) throw new Error('Sin permiso');
+      if (['Validado', 'Cancelado'].indexOf(t.estado) >= 0) throw new Error('El ticket ya está cerrado');
+      estado = 'Cancelado'; p.comentario = d.comentario || ''; break;
+    default: throw new Error('Acción no válida');
+  }
+  p.estado = estado;
+  let hist = []; try { hist = JSON.parse(t.historial || '[]'); } catch (e) {}
+  hist.push({ f: ahora, e: estado, u: me.nombre, c: d.comentario || '' }); p.historial = JSON.stringify(hist);
+  return p;
+}
+/* Al cerrar un ticket se deja constancia en la bitácora correspondiente:
+   A/C (punto con formato 002) → FO-SLH-MTO-002; cualquier otro → FO-SLH-MTO-009 */
+function registroDesdeTicket(t, punto) {
+  if (punto && punto.formato === 'FO-SLH-MTO-002') {
+    return { formato: 'FO-SLH-MTO-002', puntoId: punto.id, datos: { tipoServicio: 'Correctivo', reparacion: t.trabajoRealizado + (t.materiales ? ' · Materiales: ' + t.materiales : ''), ejecutor: 'Personal interno' }, fotoAntes: t.fotoAntes || '', fotoDespues: t.fotoDespues || '', folio: t.folio };
+  }
+  return { formato: 'FO-SLH-MTO-009', puntoId: '', datos: { area: t.area + (t.ubicacion ? ' · ' + t.ubicacion : ''), danos: [], especifique: t.categoria + ': ' + t.descripcion, actividades: t.trabajoRealizado + (t.materiales ? ' · Materiales: ' + t.materiales : ''), firmaArea: t.firmaSolicitante || '', firmaAreaNombre: t.solicitanteNombre }, fotoAntes: t.fotoAntes || '', fotoDespues: t.fotoDespues || '', folio: t.folio };
+}
+/* ==== COMPARTIDO FIN ==== */
+
+/* ---------- utilidades ---------- */
+const $ = (s, el = document) => el.querySelector(s);
+const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const fmtFecha = iso => { if (!iso) return '—'; const d = new Date(iso); return isNaN(d) ? esc(iso) : d.toLocaleString('es-MX', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }); };
+const fmtCorta = iso => { if (!iso) return '—'; const d = new Date(iso); return isNaN(d) ? esc(iso) : d.toLocaleString('es-MX', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }); };
+const fDia = iso => { const d = new Date(iso); return d.toLocaleDateString('es-MX', { day: '2-digit', month: '2-digit', year: 'numeric' }); };
+const fHora = iso => { const d = new Date(iso); return d.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit', hour12: false }); };
+const hace = iso => { if (!iso) return 'sin registros'; const m = Math.round((Date.now() - new Date(iso)) / 60000); if (m < 1) return 'hace un momento'; if (m < 60) return `hace ${m} min`; const h = Math.round(m / 60); if (h < 48) return `hace ${h} h`; return `hace ${Math.round(h / 24)} días`; };
+function toast(msg, bad) { const t = document.createElement('div'); t.className = 'toast' + (bad ? ' bad' : ''); t.textContent = msg; document.body.appendChild(t); setTimeout(() => t.remove(), 3400); }
+function ls(k, v) { try { if (v === undefined) return JSON.parse(localStorage.getItem(k)); localStorage.setItem(k, JSON.stringify(v)); } catch (e) { return null; } }
+function photoSrc(p) { if (!p) return ''; if (p.startsWith('data:') || p.startsWith('http')) return p; return 'https://drive.google.com/thumbnail?id=' + encodeURIComponent(p) + '&sz=w1000'; }
+const codigoDe = f => FORMATOS[f] && FORMATOS[f].sinCodigo ? 'Sin formato oficial' : f;
+
+const ROLES = { TECNICO: 'Técnico de mantenimiento', AREA: 'Jefe de área', MANTENIMIENTO: 'Jefe de mantenimiento', SH: 'Seguridad e Higiene', ADMIN: 'Administrador' };
+const SUPERVISA = r => esSupervisor(r);
+const EST_TICKET = { 'Enviado': 'info', 'Aceptado': 'warn', 'En proceso': 'warn', 'Realizado': 'ok', 'Validado': 'ok', 'Reabierto': 'bad', 'Cancelado': 'plain' };
+const CATEGORIAS = ['Eléctrico', 'Plomería / hidráulico', 'Aire acondicionado', 'Gases medicinales', 'Infraestructura / obra civil', 'Mobiliario', 'Equipo médico (soporte)', 'Iluminación', 'Puertas y cerraduras', 'Otro'];
+const PRIORIDADES = ['Urgente', 'Alta', 'Media', 'Baja'];
+
+function comprimir(file, max = CONFIG.API_URL ? 1280 : 640, q = CONFIG.API_URL ? 0.72 : 0.55) {
+  return new Promise((res, rej) => {
+    const r = new FileReader();
+    r.onload = () => { const img = new Image(); img.onload = () => {
+      const s = Math.min(1, max / Math.max(img.width, img.height));
+      const c = document.createElement('canvas'); c.width = Math.round(img.width * s); c.height = Math.round(img.height * s);
+      c.getContext('2d').drawImage(img, 0, 0, c.width, c.height); res(c.toDataURL('image/jpeg', q));
+    }; img.onerror = rej; img.src = r.result; };
+    r.onerror = rej; r.readAsDataURL(file);
+  });
+}
+
+/* =========================================================
+   CAPA DE DATOS
+   ========================================================= */
+const S = { user: null, token: null, tab: null, puntos: [], tecnicos: [], pendientes: 0, scanner: null };
+
+async function api(action, data = {}) {
+  if (!CONFIG.API_URL) return Demo.handle(action, data);
+  const res = await fetch(CONFIG.API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action, token: S.token, data }) });
+  const j = await res.json();
+  if (!j.ok) { if (j.code === 'AUTH') logout(true); throw new Error(j.error || 'Error del servidor'); }
+  return j.data;
+}
+
+/* ---------- MODO DEMO: misma lógica que Code.gs, guardada en este navegador ---------- */
+const Demo = (() => {
+  const KEY = 'mtto_slh_demo_v2';
+  let db = ls(KEY), me = null;
+  const now = () => new Date().toISOString();
+  const ago = h => new Date(Date.now() - h * 3600e3).toISOString();
+  const SJC = 'San José del Cabo';
+  function seed() {
+    const P = (id, nombre, formato, ubicacion, extra = {}) => Object.assign({ id, nombre, formato, sede: SJC, ubicacion, unidad: '', limites: {}, frecuenciaHoras: '', activo: true }, extra);
+    const puntos = [
+      P('SLH-MAN-001', 'Manifold de oxígeno', 'FO-SLH-MTO-005', 'Central de gases medicinales'),
+      P('SLH-GAS-001', 'Tanques de nitrógeno y CO2', 'FO-SLH-MTO-006', 'Central de gases medicinales'),
+      P('SLH-AGUA-001', 'Agua potable · cisterna y puntos de muestreo', 'FO-SLH-MTO-007', 'Cisterna principal'),
+      P('SLH-PE-001', 'Planta de emergencia', 'FO-SLH-MTO-001', 'Cuarto de máquinas'),
+      P('SLH-AC-01', 'Minisplit 24,000 BTU', 'FO-SLH-MTO-002', 'Urgencias · sala de espera'),
+      P('SLH-AC-02', 'Minisplit 18,000 BTU', 'FO-SLH-MTO-002', 'Quirófano 1'),
+      P('SLH-AC-03', 'Minisplit 12,000 BTU', 'FO-SLH-MTO-002', 'Recepción'),
+      P('SLH-OX-001', 'Cilindro de oxígeno tipo H', 'PRESION', 'Urgencias · cubículo 3', { unidad: 'psi', limites: { valor: [500, 2200] } }),
+      P('SLH-OX-002', 'Cilindro portátil tipo D', 'PRESION', 'Hospitalización · carro rojo', { unidad: 'psi', limites: { valor: [500, 2000] } })
+    ];
+    const usuarios = [
+      { numero: '1001', pin: '1234', nombre: 'Técnico de prueba', rol: 'TECNICO', area: 'Mantenimiento', sede: SJC, firma: '' },
+      { numero: '2001', pin: '1234', nombre: 'Jefa de Urgencias (prueba)', rol: 'AREA', area: 'Urgencias', sede: SJC, firma: '' },
+      { numero: '3001', pin: '1234', nombre: 'Jefe de Mantenimiento (prueba)', rol: 'MANTENIMIENTO', area: 'Mantenimiento', sede: SJC, firma: '' },
+      { numero: '4001', pin: '1234', nombre: 'Seguridad e Higiene (prueba)', rol: 'SH', area: 'Seguridad e Higiene', sede: SJC, firma: '' }
+    ];
+    const registros = []; let n = 1;
+    const R = (pid, h, datos, revisado, extra = {}) => {
+      const p = puntos.find(x => x.id === pid) || null; const fmt = extra.formato || p.formato;
+      registros.push(Object.assign({ id: 'R' + (n++), fecha: ago(h), formato: fmt, puntoId: p ? p.id : '', puntoNombre: p ? p.nombre : '', ubicacion: p ? p.ubicacion : '', sede: SJC, datos, alertas: evaluar(fmt, p, datos), fotoAntes: '', fotoDespues: '', usuario: '1001', usuarioNombre: 'Técnico de prueba', firmaRealizo: '', folio: '', revisadoPor: revisado ? '3001' : '', revisorNombre: revisado ? 'Jefe de Mantenimiento (prueba)' : '', firmaReviso: '', fechaRevision: revisado ? ago(h - 2) : '', comentarioRevision: '' }, extra));
+    };
+    [[120, 1850, 1900], [96, 1500, 1880], [72, 1150, 1860], [48, 820, 1840], [24, 480, 1820], [5, 2150, 1810]].forEach(([h, i, d], k) =>
+      R('SLH-MAN-001', h, { bancadaIzq: i, bancadaDer: d, dewar: 230, tanquesVacios: k === 5 ? 0 : k, tanquesLlenos: k === 5 ? 6 : 6 - k, areaLimpia: 'Sí', lbsIzq: 340, lbsDer: 20, cambio: k === 5 ? 'Sí' : 'No', cambioBancada: k === 5 ? 'Izquierda' : '', cambioNum: k === 5 ? 3 : '', obs: k === 5 ? 'Se cambió bancada izquierda completa.' : '' }, h > 20));
+    [[96, 1900, 780], [72, 1880, 760], [48, 1860, 750], [26, 1840, 735]].forEach(([h, a, b]) => R('SLH-GAS-001', h, { presionN2: a, presionCO2: b, obs: '' }, true));
+    [[96, 7.2, 0.8, 85], [72, 7.1, 0.6, 80], [48, 7.3, 0.5, 78], [24, 7.0, 0.15, 74], [3, 7.1, 0.9, 90]].forEach(([h, ph, cl, nv], k) =>
+      R('SLH-AGUA-001', h, { cisPh: ph, cisCl: cl, cisNivel: nv, ceyePh: 7.1, ceyeCl: cl - 0.05, uciPh: 7.0, uciCl: cl - 0.1 > 0 ? +(cl - 0.1).toFixed(2) : 0.05, lugar: 'Cocina', lugPh: 7.2, lugCl: cl, quiPh: 7.1, quiCl: cl, cloroAplicado: k === 3 ? 'Sí' : 'No', obs: k === 3 ? 'Cloro bajo; se aplicó hipoclorito a la cisterna.' : '' }, h > 20));
+    R('SLH-PE-001', 170, { nivelAgua: 'Correcto', nivelAceite: 'Correcto', diesel: 85, tipoPrueba: 'En vacío', tiempoArranque: 8, modoArranque: 'Automático', danos: 'No', obs: 'Prueba semanal sin novedad.' }, true);
+    R('SLH-PE-001', 26, { nivelAgua: 'Correcto', nivelAceite: 'Bajo', diesel: 80, tipoPrueba: 'Con carga', tiempoArranque: 9, modoArranque: 'Automático', danos: 'No', obs: 'Se repuso aceite.' }, false);
+    R('SLH-AC-01', 300, { tipoServicio: 'Preventivo', reparacion: 'Limpieza de filtros y serpentín, revisión de presiones de gas.', ejecutor: 'Proveedor externo', proveedor: 'Clima del Cabo · técnico J. Pérez' }, true);
+    R('SLH-AC-02', 40, { tipoServicio: 'Correctivo', reparacion: 'Se destapó el drenaje de condensados que goteaba.', ejecutor: 'Personal interno' }, false, { folio: 'TK-0001' });
+    R('SLH-OX-001', 30, { valor: 980, verif: FORMATOS.PRESION.campos[1].o.slice(), obs: '' }, true);
+    R('SLH-OX-001', 4, { valor: 420, verif: FORMATOS.PRESION.campos[1].o.slice(), obs: 'Se solicitó cambio de cilindro.' }, false);
+    R('SLH-OX-002', 20, { valor: 1800, verif: FORMATOS.PRESION.campos[1].o.slice(0, 3), obs: 'Etiqueta despegada.' }, false);
+    R(null, 50, { area: 'Hospitalización · cuarto 204', danos: ['Daño en lámparas'], especifique: 'Lámpara de cabecera fundida', actividades: 'Se cambió balastro y tubo LED.', firmaArea: '', firmaAreaNombre: 'Jefa de Hospitalización' }, true, { formato: 'FO-SLH-MTO-009', puntoId: '', puntoNombre: '', ubicacion: '' });
+    const H = (e, h, u) => ({ f: ago(h), e, u });
+    const tickets = [
+      { folio: 'TK-0001', fecha: ago(46), area: 'Quirófano', sede: SJC, ubicacion: 'Quirófano 1', categoria: 'Aire acondicionado', prioridad: 'Alta', descripcion: 'El minisplit gotea sobre el piso del quirófano.', foto: '', firmaSolicitante: '', solicitante: '2001', solicitanteNombre: 'Jefa de Urgencias (prueba)', estado: 'Realizado', asignadoA: '1001', asignadoNombre: 'Técnico de prueba', fechaAceptado: ago(45), fechaInicio: ago(44), fechaRealizado: ago(40), fotoAntes: '', fotoDespues: '', trabajoRealizado: 'Se destapó el drenaje de condensados que goteaba.', materiales: '', puntoId: 'SLH-AC-02', validadoPor: '', fechaValidado: '', comentario: '', historial: JSON.stringify([H('Enviado', 46, 'Jefa de Urgencias (prueba)'), H('Aceptado', 45, 'Técnico de prueba'), H('En proceso', 44, 'Técnico de prueba'), H('Realizado', 40, 'Técnico de prueba')]) },
+      { folio: 'TK-0002', fecha: ago(2), area: 'Urgencias', sede: SJC, ubicacion: 'Cubículo 2', categoria: 'Eléctrico', prioridad: 'Urgente', descripcion: 'El contacto grado hospital junto a la camilla no tiene corriente.', foto: '', firmaSolicitante: '', solicitante: '2001', solicitanteNombre: 'Jefa de Urgencias (prueba)', estado: 'Enviado', asignadoA: '', asignadoNombre: '', fechaAceptado: '', fechaInicio: '', fechaRealizado: '', fotoAntes: '', fotoDespues: '', trabajoRealizado: '', materiales: '', puntoId: '', validadoPor: '', fechaValidado: '', comentario: '', historial: JSON.stringify([H('Enviado', 2, 'Jefa de Urgencias (prueba)')]) }
+    ];
+    return { puntos, usuarios, registros, tickets, seq: { R: n, T: 3 } };
+  }
+  if (!db || !db.puntos) { db = seed(); save(); }
+  function save() { try { localStorage.setItem(KEY, JSON.stringify(db)); } catch (e) { toast('El navegador ya no tiene espacio para más fotos en modo demo', true); } }
+  const pub = u => ({ numero: u.numero, nombre: u.nombre, rol: u.rol, area: u.area, sede: u.sede, firma: u.firma || '' });
+  function nuevoRegistro(d, quien) {
+    const F = FORMATOS[d.formato]; if (!F) throw new Error('Formato no reconocido');
+    const p = d.puntoId ? db.puntos.find(x => x.id === d.puntoId) : null;
+    if (!F.libre && !p) throw new Error('Punto de revisión no encontrado');
+    const datos = d.datos || {};
+    const err = validar(d.formato, p, datos); if (err.length) throw new Error('Falta: ' + err.join(', '));
+    if (F.fotos === 'antesDespues' && !d.folio && (!d.fotoAntes || !d.fotoDespues)) throw new Error('Agrega la foto del antes y del después');
+    const r = { id: 'R' + (db.seq.R++), fecha: now(), formato: d.formato, puntoId: p ? p.id : '', puntoNombre: p ? p.nombre : '', ubicacion: p ? p.ubicacion : '', sede: p ? p.sede : quien.sede, datos, alertas: evaluar(d.formato, p, datos), fotoAntes: d.fotoAntes || '', fotoDespues: d.fotoDespues || '', usuario: quien.numero, usuarioNombre: quien.nombre, firmaRealizo: quien.firma || '', folio: d.folio || '', revisadoPor: '', revisorNombre: '', firmaReviso: '', fechaRevision: '', comentarioRevision: '' };
+    db.registros.push(r); return r;
+  }
+  const h = {
+    login({ numero, pin }) { const u = db.usuarios.find(x => x.numero === String(numero).trim() && x.pin === String(pin).trim()); if (!u) throw new Error('Número de empleado o PIN incorrecto'); me = u; return { token: 'demo-' + u.numero, user: pub(u) }; },
+    resume({ numero }) { const u = db.usuarios.find(x => x.numero === numero); if (!u) throw new Error('Sesión expirada'); me = u; return { user: pub(u) }; },
+    bootstrap() { return { puntos: db.puntos, tecnicos: db.usuarios.filter(u => u.rol === 'TECNICO').map(pub) }; },
+    guardarFirma({ firma }) { if (!firma) throw new Error('Dibuja tu firma'); me.firma = firma; save(); return { firma }; },
+    registros({ formato, puntoId, desde, hasta, mios, limit = 1000 }) {
+      let r = db.registros.slice();
+      if (formato) r = r.filter(x => x.formato === formato);
+      if (puntoId) r = r.filter(x => x.puntoId === puntoId);
+      if (desde) r = r.filter(x => x.fecha >= desde);
+      if (hasta) r = r.filter(x => x.fecha < hasta);
+      if (mios) r = r.filter(x => x.usuario === me.numero);
+      return r.sort((a, b) => b.fecha.localeCompare(a.fecha)).slice(0, limit);
+    },
+    crearRegistro(d) {
+      if (me.rol === 'AREA') throw new Error('Sin permiso');
+      if (!me.firma) throw new Error('Registra tu firma primero');
+      const r = nuevoRegistro(d, me); save(); return r;
+    },
+    revisarRegistros({ ids, comentario }) {
+      if (!SUPERVISA(me.rol)) throw new Error('Solo Mantenimiento o Seguridad e Higiene pueden revisar');
+      if (!me.firma) throw new Error('Registra tu firma primero');
+      let n = 0; db.registros.forEach(r => { if (ids.includes(r.id) && !r.revisadoPor) { Object.assign(r, { revisadoPor: me.numero, revisorNombre: me.nombre, firmaReviso: me.firma, fechaRevision: now(), comentarioRevision: comentario || '' }); n++; } });
+      save(); return { revisados: n };
+    },
+    tickets() {
+      let r = db.tickets.slice();
+      if (me.rol === 'AREA') r = r.filter(t => t.solicitante === me.numero);
+      if (me.rol === 'TECNICO') r = r.filter(t => (t.estado === 'Enviado' && !t.asignadoA) || t.asignadoA === me.numero);
+      return r.sort((a, b) => b.fecha.localeCompare(a.fecha));
+    },
+    crearTicket(d) {
+      if (!d.descripcion || !d.categoria) throw new Error('Completa el tipo de trabajo y la descripción');
+      if (!d.firma) throw new Error('Falta la firma del solicitante');
+      const folio = 'TK-' + String(db.seq.T++).padStart(4, '0');
+      const t = { folio, fecha: now(), area: d.area || me.area, sede: me.sede, ubicacion: d.ubicacion || '', categoria: d.categoria, prioridad: d.prioridad || 'Media', descripcion: d.descripcion, foto: d.foto || '', firmaSolicitante: d.firma, solicitante: me.numero, solicitanteNombre: me.nombre, estado: 'Enviado', asignadoA: '', asignadoNombre: '', fechaAceptado: '', fechaInicio: '', fechaRealizado: '', fotoAntes: '', fotoDespues: '', trabajoRealizado: '', materiales: '', puntoId: '', validadoPor: '', fechaValidado: '', comentario: '', historial: JSON.stringify([{ f: now(), e: 'Enviado', u: me.nombre }]) };
+      db.tickets.push(t); save(); return t;
+    },
+    ticketAccion(d) {
+      const t = db.tickets.find(x => x.folio === d.folio); if (!t) throw new Error('Ticket no encontrado');
+      Object.assign(t, aplicarAccion(t, d, me));
+      if (d.accion === 'completar') {
+        const p = t.puntoId ? db.puntos.find(x => x.id === t.puntoId) : null;
+        const tecnico = db.usuarios.find(u => u.numero === t.asignadoA) || me;
+        try { nuevoRegistro(registroDesdeTicket(t, p), tecnico); } catch (e) { console.warn(e); }
+      }
+      save(); return t;
+    },
+    guardarPunto(d) {
+      if (!SUPERVISA(me.rol)) throw new Error('Sin permiso');
+      if (!d.id || !d.nombre || !FORMATOS[d.formato]) throw new Error('ID, nombre y formato son obligatorios');
+      const p = { id: d.id.trim().toUpperCase(), nombre: d.nombre, formato: d.formato, sede: d.sede, ubicacion: d.ubicacion, unidad: d.unidad || '', limites: d.limites || {}, frecuenciaHoras: d.frecuenciaHoras ?? '', activo: d.activo !== false };
+      const i = db.puntos.findIndex(x => x.id === p.id); if (i >= 0) db.puntos[i] = p; else db.puntos.push(p); save(); return p;
+    },
+    reiniciarDemo() { const u = me && me.numero; db = seed(); save(); me = db.usuarios.find(x => x.numero === u); return true; }
+  };
+  return {
+    handle(a, d) { return new Promise((res, rej) => setTimeout(() => { try { if (a !== 'login' && a !== 'resume' && !me) throw new Error('Inicia sesión'); if (!h[a]) throw new Error('Acción desconocida'); res(JSON.parse(JSON.stringify(h[a](d || {})))); } catch (e) { rej(e); } }, 90)); },
+    users: () => db.usuarios
+  };
+})();
+
+/* =========================================================
+   SESIÓN Y NAVEGACIÓN
+   ========================================================= */
+async function boot() {
+  const ses = ls('mtto_slh_ses');
+  if (ses && ses.token) {
+    S.token = ses.token;
+    try {
+      const r = CONFIG.API_URL ? await api('resume') : await Demo.handle('resume', { numero: ses.token.replace('demo-', '') });
+      S.user = r.user; await cargarBase(); return shell();
+    } catch (e) { ls('mtto_slh_ses', null); }
+  }
+  loginView();
+}
+async function cargarBase() { const b = await api('bootstrap'); S.puntos = b.puntos || []; S.tecnicos = b.tecnicos || []; }
+function logout(expired) { ls('mtto_slh_ses', null); S.user = null; S.token = null; clearInterval(sondeo); pararScanner(); loginView(); if (expired) toast('Tu sesión expiró, vuelve a entrar', true); }
+
+function loginView() {
+  const demo = !CONFIG.API_URL;
+  $('#app').innerHTML = `
+  <div class="login"><div class="card">
+    <div class="seal"><div class="mark">SL</div><div><div class="eyebrow">${esc(CONFIG.ORG)}</div><h1>Mantenimiento</h1></div></div>
+    <form id="fLogin" class="stack">
+      <label class="f">Número de empleado<input type="text" id="lNum" inputmode="numeric" autocomplete="username" required></label>
+      <label class="f">PIN<input type="password" id="lPin" inputmode="numeric" autocomplete="current-password" required></label>
+      <button class="btn gold block" type="submit" id="lBtn">Entrar</button>
+    </form>
+    ${demo ? `<div class="demo-users"><b>Modo demo.</b> Entra con un usuario de prueba (PIN 1234):<br>
+      ${Demo.users().map(u => `<button type="button" data-n="${u.numero}">${esc(u.numero)} · ${esc(ROLES[u.rol])}</button>`).join('')}</div>` : ''}
+  </div></div>`;
+  $('#fLogin').onsubmit = async e => {
+    e.preventDefault(); const b = $('#lBtn'); b.disabled = true; b.textContent = 'Entrando…';
+    try { const r = await api('login', { numero: $('#lNum').value, pin: $('#lPin').value }); S.token = r.token; S.user = r.user; ls('mtto_slh_ses', { token: r.token }); await cargarBase(); shell(); }
+    catch (err) { toast(err.message, true); b.disabled = false; b.textContent = 'Entrar'; }
+  };
+  document.querySelectorAll('.demo-users button').forEach(b => b.onclick = () => { $('#lNum').value = b.dataset.n; $('#lPin').value = '1234'; $('#fLogin').requestSubmit(); });
+}
+
+function tabsPara(rol) {
+  const sup = [['panel', 'Panel'], ['bitacoras', 'Bitácoras'], ['tickets', 'Tickets'], ['puntos', 'Puntos y QR'], ['escanear', 'Escanear QR'], ['registrar', 'Registrar']];
+  return { TECNICO: [['escanear', 'Escanear QR'], ['registrar', 'Bitácoras'], ['tickets', 'Tickets'], ['historial', 'Mi historial']],
+    AREA: [['nueva', 'Nueva solicitud'], ['tickets', 'Mis solicitudes']],
+    MANTENIMIENTO: sup, SH: sup, ADMIN: sup.concat([['nueva', 'Nueva solicitud']]) }[rol] || [];
+}
+function shell() {
+  const u = S.user;
+  $('#app').innerHTML = `
+  <header class="top"><div class="wrap">
+    <div class="brand"><div class="mark">SL</div><div style="min-width:0"><b>Mantenimiento</b><small>${esc(CONFIG.ORG)}</small></div></div>
+    <div class="sp"></div>
+    <div class="who"><span>${esc(ROLES[u.rol] || u.rol)}</span>${esc(u.nombre)}</div>
+    ${u.rol !== 'AREA' ? `<button class="iconbtn" id="bFirma">Mi firma</button>` : ''}
+    <button class="iconbtn" id="bSalir">Salir</button>
+  </div></header>
+  <nav class="tabs"><div class="wrap" id="tabs"></div></nav>
+  ${!CONFIG.API_URL ? `<div class="demo-bar"><div class="wrap">Modo demo: los datos se guardan solo en este navegador. <a href="#" id="bReset">Reiniciar datos de prueba</a></div></div>` : ''}
+  <main><div class="wrap" id="view"></div></main>`;
+  $('#bSalir').onclick = () => logout();
+  const bf = $('#bFirma'); if (bf) bf.onclick = () => dlgFirma(false);
+  const r = $('#bReset'); if (r) r.onclick = async e => { e.preventDefault(); await api('reiniciarDemo'); await cargarBase(); toast('Datos de prueba reiniciados'); go(S.tab); };
+  const eq = new URLSearchParams(location.search).get('eq');
+  if (eq && u.rol !== 'AREA') { history.replaceState(null, '', location.pathname); go(tabsPara(u.rol).some(t => t[0] === 'escanear') ? 'escanear' : tabsPara(u.rol)[0][0]); abrirPunto(eq); }
+  else go(tabsPara(u.rol)[0][0]);
+  iniciarSondeo();
+}
+function pintarTabs() {
+  $('#tabs').innerHTML = tabsPara(S.user.rol).map(([k, l]) => `<button class="tab ${S.tab === k ? 'on' : ''}" data-k="${k}">${l}${k === 'tickets' && S.pendientes ? `<span class="badge">${S.pendientes}</span>` : ''}</button>`).join('');
+  document.querySelectorAll('.tab').forEach(b => b.onclick = () => go(b.dataset.k));
+}
+function go(k) {
+  pararScanner(); S.tab = k; pintarTabs();
+  const v = $('#view'); v.innerHTML = '<div class="muted">Cargando…</div>';
+  const R = { escanear: vEscanear, registrar: vRegistrar, tickets: vTickets, historial: vHistorial, nueva: vNuevaSolicitud, panel: vPanel, bitacoras: vBitacoras, puntos: vPuntos };
+  Promise.resolve((R[k] || vPanel)(v)).catch(e => { v.innerHTML = `<div class="empty">${esc(e.message)}</div>`; });
+}
+
+let sondeo = null, ultimosFolios = null;
+function iniciarSondeo() {
+  clearInterval(sondeo); ultimosFolios = null;
+  const run = async () => {
+    if (!S.user) return;
+    try {
+      const t = await api('tickets');
+      const pend = t.filter(x => S.user.rol === 'AREA' ? x.estado === 'Realizado' : (x.estado === 'Enviado' || x.estado === 'Reabierto'));
+      const folios = pend.map(x => x.folio);
+      if (ultimosFolios) { const nuevos = folios.filter(f => !ultimosFolios.includes(f)); if (nuevos.length) avisar(S.user.rol === 'AREA' ? `Trabajo realizado: ${nuevos.join(', ')}. Valídalo.` : `Nueva solicitud: ${nuevos.join(', ')}`); }
+      ultimosFolios = folios; S.pendientes = pend.length; if ($('#tabs')) pintarTabs();
+    } catch (e) {}
+  };
+  run(); sondeo = setInterval(run, CONFIG.POLL_MS);
+}
+function avisar(msg) { toast(msg); try { if ('Notification' in window && Notification.permission === 'granted') new Notification('Mantenimiento SLH', { body: msg }); } catch (e) {} }
+function pedirNotificaciones() { try { if ('Notification' in window && Notification.permission === 'default') Notification.requestPermission(); } catch (e) {} }
+
+/* =========================================================
+   COMPONENTES
+   ========================================================= */
+function chipTicket(e) { return `<span class="chip ${EST_TICKET[e] || ''}">${esc(e)}</span>`; }
+function estadoPunto(p, ult) {
+  const freq = frecuenciaDe(p);
+  if (!ult) return freq ? { c: 'warn', t: 'Sin registros' } : { c: 'plain', t: 'Sin registros' };
+  if (ult.alertas && ult.alertas.length && !ult.revisadoPor) return { c: 'bad', t: 'Con alerta' };
+  if (freq && (Date.now() - new Date(ult.fecha)) / 36e5 > freq) return { c: 'warn', t: 'Vencida' };
+  return { c: 'ok', t: freq ? 'Al día' : 'Registrado' };
+}
+function txtFreq(h) { h = num(h); if (!h) return 'Según se requiera'; if (h === 24) return 'Diaria'; if (h === 168) return 'Semanal'; if (h < 24) return `Cada ${h} h`; if (h % 24 === 0) return `Cada ${h / 24} días`; return `Cada ${h} h`; }
+function campoFoto(id, label, req) {
+  return `<div class="ph-in"><span class="eyebrow">${esc(label)}${req ? ' · obligatoria' : ''}</span>
+    <label class="ph-drop" id="${id}Box"><span id="${id}Txt">Tomar o elegir foto</span>
+    <input type="file" id="${id}" accept="image/*" capture="environment" hidden></label></div>`;
+}
+function enlazarFoto(id, store, root = document) {
+  const inp = $('#' + id, root); if (!inp) return;
+  inp.onchange = async () => {
+    const f = inp.files[0]; if (!f) return;
+    $('#' + id + 'Txt', root).textContent = 'Procesando…';
+    try { store[id] = await comprimir(f); const box = $('#' + id + 'Box', root); box.innerHTML = `<img src="${store[id]}" alt=""><span>Cambiar foto</span>`; box.appendChild(inp); }
+    catch (e) { toast('No se pudo leer la imagen', true); $('#' + id + 'Txt', root).textContent = 'Tomar o elegir foto'; }
+  };
+}
+function fotoFig(src, cap) { return `<figure>${src ? `<a href="${esc(photoSrc(src))}" target="_blank" rel="noopener"><img src="${esc(photoSrc(src))}" alt="${esc(cap)}" loading="lazy"></a>` : `<div class="noph">Sin foto</div>`}<figcaption>${esc(cap)}</figcaption></figure>`; }
+function firmaImg(src) { return src ? `<img class="sig-img" src="${esc(photoSrc(src))}" alt="Firma">` : ''; }
+function sheet(html, onMount, onClose) {
+  const bg = document.createElement('div'); bg.className = 'sheet-bg';
+  bg.innerHTML = `<div class="sheet" role="dialog" aria-modal="true"><button class="btn ghost sm close" data-close>Cerrar</button>${html}</div>`;
+  let cerrado = false;
+  const close = () => { if (cerrado) return; cerrado = true; bg.remove(); onClose && onClose(); };
+  bg.addEventListener('click', e => { if (e.target === bg || (e.target.hasAttribute && e.target.hasAttribute('data-close'))) close(); });
+  document.body.appendChild(bg); onMount && onMount(bg, close); return close;
+}
+function firmaPad(canvas) {
+  const ctx = canvas.getContext('2d'); let dib = false, vacio = true;
+  const fit = () => { const r = canvas.getBoundingClientRect(); const dpr = window.devicePixelRatio || 1; canvas.width = Math.max(1, r.width * dpr); canvas.height = Math.max(1, r.height * dpr); ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, r.width, r.height); ctx.lineWidth = 2.2; ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.strokeStyle = '#13294B'; vacio = true; };
+  fit();
+  const pos = e => { const r = canvas.getBoundingClientRect(); return [e.clientX - r.left, e.clientY - r.top]; };
+  canvas.addEventListener('pointerdown', e => { dib = true; try { canvas.setPointerCapture(e.pointerId); } catch (x) {} const [x, y] = pos(e); ctx.beginPath(); ctx.moveTo(x, y); });
+  canvas.addEventListener('pointermove', e => { if (!dib) return; const [x, y] = pos(e); ctx.lineTo(x, y); ctx.stroke(); vacio = false; });
+  ['pointerup', 'pointercancel'].forEach(t => canvas.addEventListener(t, () => dib = false));
+  return { limpiar: fit, vacio: () => vacio, png: () => canvas.toDataURL('image/png') };
+}
+function sparkline(vals, L) {
+  if (vals.length < 2) return '';
+  const W = 600, H = 110, P = 8; const mn = L && L[0] !== null ? L[0] : Math.min(...vals), mx = L && L[1] !== null ? L[1] : Math.max(...vals);
+  const lo = Math.min(mn, ...vals), hi = Math.max(mx, ...vals); const span = (hi - lo) || 1; const lo2 = lo - span * 0.08, hi2 = hi + span * 0.08;
+  const x = i => P + i * (W - 2 * P) / (vals.length - 1), y = v => H - P - (v - lo2) / (hi2 - lo2) * (H - 2 * P);
+  const out = v => L && ((L[0] !== null && v < L[0]) || (L[1] !== null && v > L[1]));
+  return `<svg class="spark" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" role="img" aria-label="Tendencia">
+    ${L ? `<rect x="0" y="${y(mx)}" width="${W}" height="${Math.max(0, y(mn) - y(mx))}" fill="var(--ok-soft)"/>` : ''}
+    <polyline points="${vals.map((v, i) => `${x(i).toFixed(1)},${y(v).toFixed(1)}`).join(' ')}" fill="none" stroke="var(--navy-2)" stroke-width="2.5" vector-effect="non-scaling-stroke"/>
+    ${vals.map((v, i) => `<circle cx="${x(i)}" cy="${y(v)}" r="4" fill="${out(v) ? 'var(--bad)' : 'var(--navy-2)'}"/>`).join('')}</svg>`;
+}
+function descargarCSV(nombre, filas) {
+  const csv = filas.map(r => r.map(c => `"${String(c ?? '').replace(/"/g, '""')}"`).join(',')).join('\n');
+  const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8' })); a.download = nombre; document.body.appendChild(a); a.click(); a.remove();
+}
+const puntoDe = id => S.puntos.find(p => p.id.toUpperCase() === String(id || '').toUpperCase());
+
+/* ---------- firma registrada del usuario ---------- */
+function asegurarFirma() { return S.user.firma ? Promise.resolve(true) : new Promise(res => dlgFirma(true, res)); }
+function dlgFirma(primera, done) {
+  let ok = false;
+  sheet(`<h2>${primera ? 'Registra tu firma' : 'Mi firma'}</h2>
+    <p class="muted">Se coloca en cada bitácora que registres o revises, junto con tu nombre, la fecha y la hora del servidor.</p>
+    ${S.user.firma ? `<div class="stack" style="gap:6px;margin-bottom:12px"><span class="eyebrow">Firma actual</span>${firmaImg(S.user.firma)}</div>` : ''}
+    <canvas class="sig" id="mf" aria-label="Área de firma"></canvas>
+    <div class="row" style="margin-top:10px"><button class="btn ghost" id="mfL">Borrar</button><button class="btn gold" id="mfG" style="flex:1">Guardar firma</button></div>`,
+  (bg, close) => {
+    const pad = firmaPad($('#mf', bg));
+    $('#mfL', bg).onclick = pad.limpiar;
+    $('#mfG', bg).onclick = async () => {
+      if (pad.vacio()) return toast('Dibuja tu firma en el recuadro', true);
+      try { const r = await api('guardarFirma', { firma: pad.png() }); S.user.firma = r.firma; ok = true; toast('Firma guardada'); close(); }
+      catch (e) { toast(e.message, true); }
+    };
+  }, () => done && done(ok));
+}
+
+/* ---------- formulario dinámico a partir de FORMATOS ---------- */
+function htmlCampo(c, punto) {
+  const id = 'f_' + c.k; const u = unidadDe(c, punto); const L = limiteDe(c, punto);
+  const rango = L ? `<small>Rango ${L[0] ?? '—'} a ${L[1] ?? '—'}${u ? ' ' + esc(u) : ''}</small>` : '';
+  let h;
+  if (c.t === 'num' || c.t === 'int') h = `<label class="f">${esc(c.l)} ${rango}<div class="numin"><input type="number" id="${id}" inputmode="decimal" step="${c.t === 'int' ? '1' : 'any'}" data-k="${c.k}"><span class="u">${esc(u)}</span></div></label>`;
+  else if (c.t === 'txt') h = `<label class="f">${esc(c.l)}<input type="text" id="${id}" data-k="${c.k}"></label>`;
+  else if (c.t === 'area') h = `<label class="f">${esc(c.l)}${c.req ? '' : ' <small>Opcional</small>'}<textarea id="${id}" data-k="${c.k}"></textarea></label>`;
+  else if (c.t === 'sel' || c.t === 'bool') { const o = c.t === 'bool' ? ['Sí', 'No'] : c.o; h = `<fieldset class="seg"><legend>${esc(c.l)}</legend><div class="opts">${o.map(x => `<label><input type="radio" name="${id}" value="${esc(x)}" data-k="${c.k}"><span>${esc(x)}</span></label>`).join('')}</div></fieldset>`; }
+  else if (c.t === 'checks') h = `<div class="stack" style="gap:6px"><span class="eyebrow">${esc(c.l)}</span>${c.alerta === 'faltantes' ? '<span class="hint">Desmarca lo que no se cumpla.</span>' : '<span class="hint">Marca lo que observes.</span>'}<div class="checks">${c.o.map(x => `<label class="chk"><input type="checkbox" name="${id}" value="${esc(x)}" data-k="${c.k}" ${c.alerta === 'faltantes' ? 'checked' : ''}>${esc(x)}</label>`).join('')}</div></div>`;
+  else if (c.t === 'firma') h = `<div class="stack" style="gap:6px"><span class="eyebrow">${esc(c.l)}</span><input type="text" id="${id}_n" placeholder="Nombre de quien firma" data-k="${c.k}Nombre"><canvas class="sig" id="${id}" aria-label="${esc(c.l)}"></canvas><button type="button" class="btn ghost sm" data-limpiar="${c.k}" style="align-self:flex-start">Borrar firma</button></div>`;
+  return `<div class="campo" data-campo="${c.k}" ${c.si ? `data-si="${esc(c.si)}"` : ''}>${h}</div>`;
+}
+function htmlFormulario(fmt, punto) {
+  const F = FORMATOS[fmt]; let html = '', grupo = null, buf = [];
+  const flush = () => { if (grupo !== null) html += `<div class="grp"><div class="eyebrow">${esc(grupo)}</div><div class="gfields">${buf.join('')}</div></div>`; buf = []; };
+  F.campos.forEach(c => {
+    if ((c.g || null) !== grupo) { flush(); grupo = c.g || null; }
+    if (grupo === null) html += htmlCampo(c, punto); else buf.push(htmlCampo(c, punto));
+  });
+  flush();
+  return html;
+}
+function montarFormulario(root, fmt, punto) {
+  const F = FORMATOS[fmt]; const pads = {};
+  F.campos.filter(c => c.t === 'firma').forEach(c => { pads[c.k] = firmaPad($('#f_' + c.k, root)); });
+  root.querySelectorAll('[data-limpiar]').forEach(b => b.onclick = () => pads[b.dataset.limpiar].limpiar());
+  const leer = () => {
+    const d = {};
+    F.campos.forEach(c => {
+      const id = 'f_' + c.k;
+      if (c.t === 'num' || c.t === 'int') { const v = num($('#' + id, root).value); d[c.k] = v === null ? '' : v; }
+      else if (c.t === 'txt' || c.t === 'area') d[c.k] = $('#' + id, root).value.trim();
+      else if (c.t === 'sel' || c.t === 'bool') { const s = root.querySelector(`input[name="${id}"]:checked`); d[c.k] = s ? s.value : ''; }
+      else if (c.t === 'checks') d[c.k] = [...root.querySelectorAll(`input[name="${id}"]:checked`)].map(x => x.value);
+      else if (c.t === 'firma') { d[c.k] = pads[c.k].vacio() ? '' : pads[c.k].png(); d[c.k + 'Nombre'] = $('#' + id + '_n', root).value.trim(); }
+    });
+    F.campos.forEach(c => { if (!campoActivo(c, d)) { d[c.k] = ''; if (c.t === 'firma') d[c.k + 'Nombre'] = ''; } });
+    return d;
+  };
+  const refrescar = () => {
+    const d = leer();
+    root.querySelectorAll('[data-si]').forEach(el => { const c = F.campos.find(x => x.k === el.dataset.campo); el.hidden = !campoActivo(c, d); });
+    F.campos.filter(c => c.t === 'num' || c.t === 'int').forEach(c => {
+      const inp = $('#f_' + c.k, root); const L = limiteDe(c, punto); const v = num(inp.value);
+      inp.classList.toggle('out', !!(L && v !== null && ((L[0] !== null && v < L[0]) || (L[1] !== null && v > L[1]))));
+    });
+    const al = evaluar(fmt, punto, d); const box = $('#fAlertas', root);
+    if (box) box.innerHTML = al.length ? al.map(a => `<span class="chip bad wrap">${esc(a)}</span>`).join('') + `<span class="hint">Se avisará a Seguridad e Higiene y a Mantenimiento al guardar.</span>` : '';
+  };
+  root.addEventListener('input', refrescar); root.addEventListener('change', refrescar); refrescar();
+  return { leer };
+}
+function valorTxt(c, punto, d) {
+  const v = d[c.k];
+  if (v === '' || v === null || v === undefined || (Array.isArray(v) && !v.length)) return '—';
+  if (c.t === 'num' || c.t === 'int') { const u = unidadDe(c, punto); return `${v}${u ? ' ' + u : ''}`; }
+  if (Array.isArray(v)) return v.join(', ');
+  if (c.t === 'firma') return d[c.k + 'Nombre'] || '';
+  return String(v);
+}
+function fueraDe(c, punto, d) { if (c.t !== 'num' && c.t !== 'int') return (c.bueno !== undefined && d[c.k] && d[c.k] !== c.bueno) || (c.malo !== undefined && d[c.k] === c.malo); const L = limiteDe(c, punto); const v = num(d[c.k]); return !!(L && v !== null && ((L[0] !== null && v < L[0]) || (L[1] !== null && v > L[1]))); }
+
+/* =========================================================
+   ESCANEAR Y REGISTRAR
+   ========================================================= */
+async function vEscanear(v) {
+  v.innerHTML = `
+  <div class="head"><div><div class="eyebrow">Revisión en sitio</div><h1>Escanear código QR</h1></div></div>
+  <div class="grid2">
+    <div class="stack">
+      <div id="scanArea"><div class="scan-idle"><div class="stack" style="align-items:center">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M4 8V5a1 1 0 0 1 1-1h3M16 4h3a1 1 0 0 1 1 1v3M20 16v3a1 1 0 0 1-1 1h-3M8 20H5a1 1 0 0 1-1-1v-3"/><path d="M7 12h10"/></svg>
+        <div>Apunta la cámara a la etiqueta del manifold, tanque, minisplit o punto de revisión.</div>
+        <button class="btn gold" id="bCam">Activar cámara</button></div></div></div>
+      <div id="reader" hidden></div>
+      <button class="btn ghost" id="bStop" hidden>Detener cámara</button>
+    </div>
+    <div class="card sect">
+      <h3>¿La etiqueta no se lee?</h3>
+      <p class="muted" style="margin:0">Escribe o elige el ID impreso debajo del código.</p>
+      <form id="fManual" class="row"><input type="search" id="mId" list="dlPts" placeholder="Ej. SLH-MAN-001" style="flex:1;min-width:160px" autocapitalize="characters"><button class="btn">Abrir</button></form>
+      <datalist id="dlPts">${S.puntos.filter(p => p.activo !== false).map(p => `<option value="${esc(p.id)}">${esc(p.nombre)} · ${esc(p.ubicacion)}</option>`).join('')}</datalist>
+    </div>
+  </div>`;
+  $('#bCam').onclick = iniciarScanner; $('#bStop').onclick = pararScanner;
+  $('#fManual').onsubmit = e => { e.preventDefault(); const id = $('#mId').value.trim(); if (id) abrirPunto(id); };
+  pedirNotificaciones();
+}
+function idDesdeQR(txt) { try { const u = new URL(txt); return u.searchParams.get('eq') || txt; } catch (e) { return txt.trim(); } }
+async function iniciarScanner() {
+  if (typeof Html5Qrcode === 'undefined') return toast('No se cargó el lector de QR. Revisa tu conexión.', true);
+  $('#scanArea').hidden = true; $('#reader').hidden = false; $('#bStop').hidden = false;
+  S.scanner = new Html5Qrcode('reader');
+  try {
+    await S.scanner.start({ facingMode: 'environment' }, { fps: 10, qrbox: (w, h) => { const s = Math.floor(Math.min(w, h) * 0.7); return { width: s, height: s }; } },
+      txt => { try { navigator.vibrate && navigator.vibrate(80); } catch (e) {} pararScanner(); abrirPunto(idDesdeQR(txt)); }, () => {});
+  } catch (e) { pararScanner(); toast('No se pudo abrir la cámara. Da permiso de cámara al navegador.', true); }
+}
+function pararScanner() {
+  const s = S.scanner; S.scanner = null;
+  if (s) { try { s.stop().then(() => s.clear()).catch(() => {}); } catch (e) {} }
+  if ($('#scanArea')) { $('#scanArea').hidden = false; $('#reader').hidden = true; $('#bStop').hidden = true; }
+}
+
+/* Lista de bitácoras para el técnico: qué toca hoy */
+async function vRegistrar(v) {
+  const r = await api('registros', { desde: new Date(Date.now() - 45 * 864e5).toISOString() });
+  const ult = id => r.find(x => x.puntoId === id);
+  v.innerHTML = `
+  <div class="head"><div><div class="eyebrow">Registro digital de formatos</div><h1>Bitácoras</h1></div></div>
+  <div class="fmtgrid">${ORDEN_FORMATOS.map(f => {
+    const F = FORMATOS[f]; const pts = S.puntos.filter(p => p.formato === f && p.activo !== false);
+    if (!F.libre && !pts.length) return '';
+    return `<section class="fmt"><header><div><div class="code">${esc(codigoDe(f))}</div><h3>${esc(F.corto)}</h3></div>${F.libre ? `<button class="btn gold sm" data-libre="${f}">Nuevo registro</button>` : `<span class="chip plain">${txtFreq(F.freq)}</span>`}</header>
+    ${F.libre ? `<div class="pt" style="cursor:default"><div class="body m">${esc(F.nota || '')} Últimos: ${r.filter(x => x.formato === f).length} registros en 45 días.</div></div>` :
+      pts.map(p => { const u = ult(p.id); const s = estadoPunto(p, u); return `<button class="pt" data-pt="${esc(p.id)}"><span class="dot s-${s.c}"></span><div class="body"><b>${esc(p.nombre)}</b><div class="m">${esc(p.id)} · ${esc(p.ubicacion)}</div></div><div style="text-align:right"><span class="chip ${s.c}">${s.t}</span><div class="m" style="margin-top:2px">${hace(u && u.fecha)}</div></div></button>`; }).join('')}
+    </section>`; }).join('')}</div>`;
+  v.querySelectorAll('[data-pt]').forEach(b => b.onclick = () => abrirPunto(b.dataset.pt));
+  v.querySelectorAll('[data-libre]').forEach(b => b.onclick = () => abrirFormulario(b.dataset.libre, null, []));
+}
+
+async function abrirPunto(id) {
+  const p = puntoDe(id);
+  if (!p) return toast(`No existe un punto de revisión con ID ${String(id).toUpperCase()}`, true);
+  if (p.activo === false) return toast(`${p.id} está dado de baja`, true);
+  const hist = await api('registros', { puntoId: p.id, limit: 30 });
+  abrirFormulario(p.formato, p, hist);
+}
+function abrirFormulario(fmt, p, hist) {
+  const F = FORMATOS[fmt]; const ult = hist[0]; const est = p ? estadoPunto(p, ult) : null;
+  const numC = F.campos.find(c => c.t === 'num' && (limiteDe(c, p) || c.req));
+  const fotos = {};
+  if (S.user.rol === 'AREA') return toast('Tu perfil no registra bitácoras', true);
+  sheet(`
+    <div class="plate">
+      <div class="code">${esc(codigoDe(fmt))}${p ? ' · ' + esc(p.id) : ''}</div>
+      <h2>${esc(p ? p.nombre : F.titulo)}</h2>
+      ${p ? `<div class="row" style="margin-top:6px"><span class="chip ${est.c}">${est.t}</span><span class="muted" style="font-size:13px">Último registro ${hace(ult && ult.fecha)}${ult ? ' · ' + esc(ult.usuarioNombre) : ''}</span></div>
+      <dl class="kv"><dt>Bitácora</dt><dd>${esc(F.titulo)}</dd><dt>Ubicación</dt><dd>${esc(p.ubicacion)} · ${esc(p.sede)}</dd><dt>Frecuencia</dt><dd>${txtFreq(frecuenciaDe(p))}</dd></dl>` : ''}
+    </div>
+    ${F.nota ? `<p class="muted" style="font-size:14px;margin:12px 0 0">${esc(F.nota)}</p>` : ''}
+    ${F.instrucciones ? `<details class="instr" style="margin-top:10px"><summary>Instrucciones del kit</summary><ol>${F.instrucciones.map(i => `<li>${esc(i)}</li>`).join('')}</ol></details>` : ''}
+    <form id="fReg" class="stack" style="margin-top:14px" novalidate>
+      ${htmlFormulario(fmt, p)}
+      <div class="alertbox" id="fAlertas"></div>
+      ${F.fotos === 'antesDespues' ? `<div class="grid2">${campoFoto('rAntes', 'Foto antes', true)}${campoFoto('rDesp', 'Foto después', true)}</div>` : campoFoto('rAntes', 'Foto de evidencia (opcional)')}
+      <button class="btn gold block" id="rBtn">Guardar y firmar</button>
+      <p class="muted" style="margin:0;font-size:13px">Se registra a nombre de ${esc(S.user.nombre)}, con tu firma y la fecha y hora del servidor.</p>
+    </form>
+    ${numC && hist.length > 1 ? `<div style="margin-top:18px"><div class="eyebrow">${esc(numC.l)} · últimos ${hist.length} registros</div>${sparkline(hist.slice().reverse().map(x => num(x.datos[numC.k])).filter(x => x !== null), limiteDe(numC, p))}</div>` : ''}
+    ${hist.length ? `<div style="margin-top:14px"><div class="eyebrow" style="margin-bottom:6px">Registros recientes</div><div class="list">${hist.slice(0, 5).map(itemRegistro).join('')}</div></div>` : ''}
+  `, (bg, close) => {
+    const form = montarFormulario(bg, fmt, p);
+    enlazarFoto('rAntes', fotos, bg); enlazarFoto('rDesp', fotos, bg);
+    bg.querySelectorAll('[data-reg]').forEach(b => b.onclick = () => abrirRegistro(hist.find(x => x.id === b.dataset.reg)));
+    $('#fReg', bg).onsubmit = async ev => {
+      ev.preventDefault();
+      const d = form.leer(); const err = validar(fmt, p, d);
+      if (err.length) return toast('Falta: ' + err.join(', '), true);
+      if (F.fotos === 'antesDespues' && (!fotos.rAntes || !fotos.rDesp)) return toast('Agrega la foto del antes y del después', true);
+      const b = $('#rBtn', bg); b.disabled = true; b.textContent = 'Guardando…';
+      if (!(await asegurarFirma())) { b.disabled = false; b.textContent = 'Guardar y firmar'; return; }
+      try {
+        const r = await api('crearRegistro', { formato: fmt, puntoId: p ? p.id : '', datos: d, fotoAntes: fotos.rAntes || '', fotoDespues: fotos.rDesp || '' });
+        close();
+        sheet(`<div class="stack" style="text-align:center;padding-top:10px">
+          <span class="chip ${r.alertas.length ? 'bad' : 'ok'}" style="align-self:center">${r.alertas.length ? 'Registrado con alertas' : 'Registrado'}</span>
+          <h2>${esc(FORMATOS[fmt].corto)}</h2>
+          <div><b>${esc(r.puntoId || r.datos.area || '')}</b> ${r.ubicacion ? '· ' + esc(r.ubicacion) : ''}</div>
+          <div class="muted">${fmtFecha(r.fecha)} · ${esc(r.usuarioNombre)}</div>
+          ${r.alertas.length ? `<div class="alertbox" style="align-items:center">${r.alertas.map(a => `<span class="chip bad wrap">${esc(a)}</span>`).join('')}</div>` : ''}
+          <button class="btn gold" data-close id="bOtro">Escanear otro punto</button></div>`, (b2, c2) => { $('#bOtro', b2).onclick = () => { c2(); if (S.tab === 'escanear') iniciarScanner(); else go(S.tab); }; });
+      } catch (err2) { toast(err2.message, true); b.disabled = false; b.textContent = 'Guardar y firmar'; }
+    };
+  });
+}
+function itemRegistro(r) {
+  const F = FORMATOS[r.formato] || {}; const s = r.alertas.length ? (r.revisadoPor ? 'warn' : 'bad') : 'ok';
+  return `<button class="item" data-reg="${esc(r.id)}"><span class="stripe s-${s}"></span><div class="body">
+    <div class="row" style="justify-content:space-between"><span class="code">${esc(codigoDe(r.formato))}</span>${r.revisadoPor ? '<span class="chip ok">Revisado</span>' : '<span class="chip info">Por revisar</span>'}</div>
+    <div class="t">${esc(F.corto)} · ${esc(r.puntoId || r.datos.area || '')}</div>
+    <div class="m">${fmtFecha(r.fecha)} · ${esc(r.usuarioNombre)}${r.alertas.length ? ` · <b style="color:var(--bad)">${r.alertas.length} alerta${r.alertas.length > 1 ? 's' : ''}</b>` : ''}</div></div></button>`;
+}
+function abrirRegistro(r, alRevisar) {
+  const F = FORMATOS[r.formato]; const p = puntoDe(r.puntoId);
+  const puedeRevisar = SUPERVISA(S.user.rol) && !r.revisadoPor;
+  const firmaCampo = F.campos.find(c => c.t === 'firma');
+  sheet(`
+    <div class="code">${esc(codigoDe(r.formato))}${r.folio ? ' · Ticket ' + esc(r.folio) : ''}</div>
+    <h2>${esc(F.titulo)}</h2>
+    <div class="row" style="margin:8px 0 12px">${r.alertas.length ? `<span class="chip bad">${r.alertas.length} alerta${r.alertas.length > 1 ? 's' : ''}</span>` : '<span class="chip ok">Sin alertas</span>'}${r.revisadoPor ? '<span class="chip ok">Revisado</span>' : '<span class="chip info">Por revisar</span>'}</div>
+    <div class="card"><dl class="kv" style="margin:0">
+      <dt>Fecha y hora</dt><dd>${fmtFecha(r.fecha)}</dd>
+      ${r.puntoId ? `<dt>${esc(F.colPunto || 'Punto')}</dt><dd>${esc(r.puntoId)} · ${esc(r.puntoNombre)}</dd><dt>Ubicación</dt><dd>${esc(r.ubicacion)}</dd>` : ''}
+      <dt>Sede</dt><dd>${esc(r.sede)}</dd>
+      ${F.campos.filter(c => c.t !== 'firma' && campoActivo(c, r.datos)).map(c => `<dt>${esc(c.g ? c.g + ' · ' + c.l : c.l)}</dt><dd class="${fueraDe(c, p, r.datos) ? 'out' : ''}" style="white-space:pre-wrap">${esc(valorTxt(c, p, r.datos))}</dd>`).join('')}
+    </dl></div>
+    ${r.alertas.length ? `<div class="alertbox" style="margin-top:12px">${r.alertas.map(a => `<span class="chip bad wrap">${esc(a)}</span>`).join('')}</div>` : ''}
+    ${r.fotoAntes || r.fotoDespues ? `<div class="ba" style="margin-top:12px">${F.fotos === 'antesDespues' ? fotoFig(r.fotoAntes, 'Antes') + fotoFig(r.fotoDespues, 'Después') : fotoFig(r.fotoAntes || r.fotoDespues, 'Evidencia')}</div>` : ''}
+    <div class="signs" style="margin-top:16px">
+      <div><span class="eyebrow">Realizó</span><br>${firmaImg(r.firmaRealizo)}<br><b>${esc(r.usuarioNombre)}</b><div class="muted" style="font-size:13px">${fmtFecha(r.fecha)}</div></div>
+      ${firmaCampo ? `<div><span class="eyebrow">${esc(firmaCampo.l)}</span><br>${firmaImg(r.datos[firmaCampo.k])}<br><b>${esc(r.datos[firmaCampo.k + 'Nombre'] || '—')}</b></div>` : ''}
+      <div><span class="eyebrow">Revisó</span><br>${r.revisadoPor ? `${firmaImg(r.firmaReviso)}<br><b>${esc(r.revisorNombre)}</b><div class="muted" style="font-size:13px">${fmtFecha(r.fechaRevision)}${r.comentarioRevision ? ' · ' + esc(r.comentarioRevision) : ''}</div>` : '<span class="muted">Pendiente</span>'}</div>
+    </div>
+    ${puedeRevisar ? `<div class="card stack" style="margin-top:14px"><label class="f">Comentario de revisión <small>Opcional</small><input type="text" id="rvCom" placeholder="${r.alertas.length ? 'Ej. se solicitó cambio de cilindro' : ''}"></label><button class="btn ok" id="rvBtn">Revisar y firmar</button></div>` : ''}
+  `, (bg, close) => {
+    const b = $('#rvBtn', bg); if (!b) return;
+    b.onclick = async () => {
+      b.disabled = true;
+      if (!(await asegurarFirma())) { b.disabled = false; return; }
+      try { await api('revisarRegistros', { ids: [r.id], comentario: $('#rvCom', bg).value.trim() }); toast('Revisión firmada'); close(); alRevisar ? alRevisar() : go(S.tab); }
+      catch (e) { toast(e.message, true); b.disabled = false; }
+    };
+  });
+}
+async function vHistorial(v) {
+  const r = await api('registros', { mios: true, limit: 80 });
+  v.innerHTML = `<div class="head"><div><div class="eyebrow">${esc(S.user.nombre)}</div><h1>Mi historial</h1></div></div>
+  <div class="list" style="max-width:760px">${r.length ? r.map(itemRegistro).join('') : '<div class="empty">Aún no registras bitácoras.</div>'}</div>`;
+  v.querySelectorAll('[data-reg]').forEach(b => b.onclick = () => abrirRegistro(r.find(x => x.id === b.dataset.reg)));
+}
+
+/* =========================================================
+   TICKETS
+   ========================================================= */
+async function vTickets(v) {
+  const rol = S.user.rol;
+  const t = await api('tickets');
+  const filtros = rol === 'AREA' ? ['Abiertos', 'Por validar', 'Cerrados'] : ['Abiertos', 'Sin asignar', 'Por validar', 'Cerrados'];
+  let f = 'Abiertos';
+  const pasaF = (x, ff) => ff === 'Abiertos' ? ['Enviado', 'Aceptado', 'En proceso', 'Reabierto'].includes(x.estado) : ff === 'Sin asignar' ? (x.estado === 'Enviado' && !x.asignadoA) : ff === 'Por validar' ? x.estado === 'Realizado' : ['Validado', 'Cancelado'].includes(x.estado);
+  const pinta = () => {
+    const r = t.filter(x => pasaF(x, f));
+    v.innerHTML = `
+    <div class="head"><div><div class="eyebrow">${rol === 'AREA' ? 'Solicitudes de tu área' : 'Órdenes de trabajo'}</div><h1>${rol === 'AREA' ? 'Mis solicitudes' : 'Tickets'}</h1></div>
+      ${rol === 'AREA' ? `<button class="btn gold" id="bNueva">Nueva solicitud</button>` : SUPERVISA(rol) ? `<button class="btn ghost sm" id="bCsv">Exportar CSV</button>` : ''}</div>
+    <div class="row" style="margin-bottom:12px">${filtros.map(x => `<button class="btn sm ${x === f ? '' : 'ghost'}" data-f="${x}">${x} <span class="mono">${t.filter(y => pasaF(y, x)).length}</span></button>`).join('')}</div>
+    <div class="list" style="max-width:860px">${r.length ? r.map(x => `
+      <button class="item" data-folio="${esc(x.folio)}"><span class="stripe p-${esc(x.prioridad)}"></span>
+        <div class="body"><div class="row" style="justify-content:space-between"><span class="code">${esc(x.folio)}</span>${chipTicket(x.estado)}</div>
+        <div class="t">${esc(x.categoria)} · ${esc(x.area)}</div>
+        <div class="m">${esc(x.descripcion).slice(0, 120)}</div>
+        <div class="m">${esc(x.prioridad)} · ${fmtCorta(x.fecha)}${x.asignadoNombre ? ' · ' + esc(x.asignadoNombre) : ''}</div></div>
+      </button>`).join('') : `<div class="empty">No hay tickets en esta vista.</div>`}</div>`;
+    v.querySelectorAll('[data-f]').forEach(b => b.onclick = () => { f = b.dataset.f; pinta(); });
+    v.querySelectorAll('[data-folio]').forEach(b => b.onclick = () => abrirTicket(t.find(x => x.folio === b.dataset.folio)));
+    const bn = $('#bNueva'); if (bn) bn.onclick = () => go('nueva');
+    const bc = $('#bCsv'); if (bc) bc.onclick = () => descargarCSV('tickets.csv', [['Folio', 'Fecha', 'Área', 'Sede', 'Ubicación', 'Tipo', 'Prioridad', 'Descripción', 'Solicitante', 'Estado', 'Atendió', 'Aceptado', 'Inicio', 'Realizado', 'Trabajo realizado', 'Materiales', 'Equipo', 'Validado por', 'Fecha validado'], ...t.map(x => [x.folio, x.fecha, x.area, x.sede, x.ubicacion, x.categoria, x.prioridad, x.descripcion, x.solicitanteNombre, x.estado, x.asignadoNombre, x.fechaAceptado, x.fechaInicio, x.fechaRealizado, x.trabajoRealizado, x.materiales, x.puntoId, x.validadoPor, x.fechaValidado])]);
+  };
+  pinta();
+}
+function abrirTicket(t) {
+  const u = S.user, rol = u.rol, sup = SUPERVISA(rol);
+  const mio = String(t.asignadoA) === String(u.numero); const soySolic = String(t.solicitante) === String(u.numero);
+  let hist = []; try { hist = JSON.parse(t.historial || '[]'); } catch (e) {}
+  const fotos = {}; const acciones = [];
+  if ((rol === 'TECNICO' || sup) && ['Enviado', 'Reabierto'].includes(t.estado) && (!t.asignadoA || t.estado === 'Reabierto')) acciones.push(`<button class="btn gold" data-a="aceptar">Aceptar ticket</button>`);
+  if (sup && ['Enviado', 'Aceptado', 'Reabierto'].includes(t.estado)) acciones.push(`<div class="row" style="flex:1 1 100%"><select id="tTec" style="flex:1;min-width:150px"><option value="">Asignar a técnico…</option>${S.tecnicos.map(x => `<option value="${esc(x.numero)}" ${String(x.numero) === String(t.asignadoA) ? 'selected' : ''}>${esc(x.nombre)}</option>`).join('')}</select><button class="btn ghost" data-a="asignar">Asignar</button></div>`);
+  const puedeTrabajar = (mio || sup) && ['Aceptado', 'En proceso', 'Reabierto'].includes(t.estado) && t.asignadoA;
+  const puedeValidar = (soySolic || sup) && t.estado === 'Realizado';
+  const sugerido = t.categoria === 'Aire acondicionado' ? 'FO-SLH-MTO-002' : null;
+  sheet(`
+    <div class="code">${esc(t.folio)}</div>
+    <h2>${esc(t.categoria)} · ${esc(t.area)}</h2>
+    <div class="row" style="margin:8px 0 12px">${chipTicket(t.estado)}<span class="chip plain">Prioridad ${esc(t.prioridad)}</span></div>
+    <div class="card sect">
+      <dl class="kv" style="margin:0"><dt>Ubicación</dt><dd>${esc(t.ubicacion || '—')}</dd><dt>Sede</dt><dd>${esc(t.sede)}</dd><dt>Solicitó</dt><dd>${esc(t.solicitanteNombre)}</dd><dt>Fecha</dt><dd>${fmtFecha(t.fecha)}</dd>${t.asignadoNombre ? `<dt>Atiende</dt><dd>${esc(t.asignadoNombre)}</dd>` : ''}${t.puntoId ? `<dt>Equipo</dt><dd>${esc(t.puntoId)}</dd>` : ''}</dl>
+      <div><div class="eyebrow">Descripción</div><div style="white-space:pre-wrap">${esc(t.descripcion)}</div></div>
+      ${t.foto ? `<div class="ba" style="grid-template-columns:1fr">${fotoFig(t.foto, 'Foto del reporte')}</div>` : ''}
+      ${t.firmaSolicitante ? `<div><div class="eyebrow">Firma del solicitante</div>${firmaImg(t.firmaSolicitante)}</div>` : ''}
+    </div>
+    ${t.fotoAntes || t.fotoDespues || t.trabajoRealizado ? `<div class="card sect" style="margin-top:12px"><h3>Trabajo realizado</h3>
+      <div class="ba">${fotoFig(t.fotoAntes, 'Antes')}${fotoFig(t.fotoDespues, 'Después')}</div>
+      ${t.trabajoRealizado ? `<div style="white-space:pre-wrap">${esc(t.trabajoRealizado)}</div>` : ''}${t.materiales ? `<div class="muted">Materiales: ${esc(t.materiales)}</div>` : ''}
+      ${t.validadoPor ? `<div><span class="chip ok">Validado por ${esc(t.validadoPor)} · ${fmtCorta(t.fechaValidado)}</span></div>` : ''}
+      ${t.comentario ? `<div class="muted">Comentario: ${esc(t.comentario)}</div>` : ''}</div>` : ''}
+    ${acciones.length ? `<div class="row" style="margin-top:14px">${acciones.join('')}</div>` : ''}
+    ${puedeTrabajar ? `<form id="fTrab" class="card stack" style="margin-top:14px">
+      <h3>${t.estado === 'En proceso' ? 'Cerrar trabajo' : 'Atender ticket'}</h3>
+      <div class="grid2">${campoFoto('tAntes', 'Foto antes')}${campoFoto('tDesp', 'Foto después', true)}</div>
+      ${t.estado !== 'En proceso' ? `<button type="button" class="btn ghost" data-a="iniciar">Marcar en proceso (con foto antes)</button>` : ''}
+      <label class="f">Trabajo realizado<textarea id="tTrab" placeholder="Qué se hizo y cómo quedó"></textarea></label>
+      <label class="f">Materiales usados <small>Opcional</small><input type="text" id="tMat"></label>
+      <label class="f">Equipo atendido <small>Si fue un minisplit, queda en la bitácora FO-SLH-MTO-002; si no, en la FO-SLH-MTO-009</small>
+        <select id="tPunto"><option value="">Ninguno en particular</option>${S.puntos.filter(p => p.activo !== false).map(p => `<option value="${esc(p.id)}" ${(t.puntoId === p.id) || (!t.puntoId && sugerido && p.formato === sugerido && (p.ubicacion || '').toLowerCase().includes((t.ubicacion || '~').toLowerCase())) ? 'selected' : ''}>${esc(p.id)} · ${esc(p.nombre)} · ${esc(p.ubicacion)}</option>`).join('')}</select></label>
+      <button class="btn ok block" data-a="completar">Marcar como realizado</button></form>` : ''}
+    ${puedeValidar ? `<div class="card stack" style="margin-top:14px"><h3>¿Quedó resuelto?</h3>
+      <label class="f">Comentario <small>Obligatorio si lo reabres</small><textarea id="tCom"></textarea></label>
+      <div class="row"><button class="btn ok" data-a="validar">Validar: quedó resuelto</button><button class="btn bad" data-a="reabrir">Reabrir</button></div></div>` : ''}
+    ${(soySolic || sup) && !['Validado', 'Cancelado', 'Realizado'].includes(t.estado) ? `<div style="margin-top:12px"><button class="btn bad sm" data-a="cancelar">Cancelar solicitud</button></div>` : ''}
+    <div style="margin-top:18px"><div class="eyebrow" style="margin-bottom:8px">Seguimiento</div><ul class="tl">${hist.map(h => `<li><div><b>${esc(h.e)}</b> · ${esc(h.u)}<div class="muted" style="font-size:13px">${fmtFecha(h.f)}${h.c ? ' · ' + esc(h.c) : ''}</div></div></li>`).join('')}</ul></div>
+  `, (bg, close) => {
+    enlazarFoto('tAntes', fotos, bg); enlazarFoto('tDesp', fotos, bg);
+    const f = $('#fTrab', bg); if (f) f.onsubmit = e => e.preventDefault();
+    bg.querySelectorAll('[data-a]').forEach(b => b.onclick = async () => {
+      const a = b.dataset.a; const d = { folio: t.folio, accion: a };
+      if (a === 'asignar') { const s = $('#tTec', bg); d.tecnico = s.value; d.tecnicoNombre = s.selectedOptions[0] && s.selectedOptions[0].textContent; }
+      if (a === 'iniciar') d.fotoAntes = fotos.tAntes || '';
+      if (a === 'completar') { d.fotoAntes = fotos.tAntes || ''; d.fotoDespues = fotos.tDesp || ''; d.trabajoRealizado = $('#tTrab', bg).value.trim(); d.materiales = $('#tMat', bg).value.trim(); d.puntoId = $('#tPunto', bg).value; }
+      if (['validar', 'reabrir'].includes(a)) d.comentario = $('#tCom', bg).value.trim();
+      b.disabled = true;
+      try { const r = await api('ticketAccion', d); close(); toast(`${r.folio}: ${r.estado}${a === 'completar' ? ' · registrado en bitácora' : ''}`); go(S.tab); setTimeout(() => abrirTicket(r), 250); }
+      catch (err) { toast(err.message, true); b.disabled = false; }
+    });
+  });
+}
+async function vNuevaSolicitud(v) {
+  const fotos = {};
+  v.innerHTML = `
+  <div class="head"><div><div class="eyebrow">Solicitud de mantenimiento</div><h1>Nueva solicitud</h1></div></div>
+  <form id="fSol" class="card stack" style="max-width:720px">
+    <div class="grid2">
+      <label class="f">Área<input type="text" id="sArea" value="${esc(S.user.area || '')}" required></label>
+      <label class="f">Ubicación exacta<input type="text" id="sUbi" placeholder="Ej. cubículo 4, baño de pacientes" required></label>
+      <label class="f">Tipo de trabajo<select id="sCat" required><option value="">Elige…</option>${CATEGORIAS.map(c => `<option>${c}</option>`).join('')}</select></label>
+      <label class="f">Prioridad<select id="sPri">${PRIORIDADES.map(p => `<option ${p === 'Media' ? 'selected' : ''}>${p}</option>`).join('')}</select></label>
+    </div>
+    <label class="f">Describe la falla o el trabajo<textarea id="sDesc" required placeholder="Qué pasa, desde cuándo y si afecta la atención de pacientes"></textarea></label>
+    ${campoFoto('sFoto', 'Foto de la falla (opcional)')}
+    <div class="stack" style="gap:6px"><div class="row" style="justify-content:space-between"><span class="eyebrow">Firma de ${esc(S.user.nombre)}</span><button type="button" class="btn ghost sm" id="sLimpiar">Borrar firma</button></div>
+      <canvas class="sig" id="sFirma" aria-label="Área de firma"></canvas>
+      <small class="muted">Firma con el dedo o el mouse dentro del recuadro.</small></div>
+    <button class="btn gold block" id="sBtn">Enviar solicitud</button>
+  </form>`;
+  enlazarFoto('sFoto', fotos);
+  const pad = firmaPad($('#sFirma'));
+  $('#sLimpiar').onclick = pad.limpiar;
+  $('#fSol').onsubmit = async e => {
+    e.preventDefault();
+    if (pad.vacio()) return toast('Falta tu firma', true);
+    const b = $('#sBtn'); b.disabled = true; b.textContent = 'Enviando…';
+    try {
+      const t = await api('crearTicket', { area: $('#sArea').value.trim(), ubicacion: $('#sUbi').value.trim(), categoria: $('#sCat').value, prioridad: $('#sPri').value, descripcion: $('#sDesc').value.trim(), foto: fotos.sFoto || '', firma: pad.png() });
+      toast(`Solicitud ${t.folio} enviada a Mantenimiento`); go('tickets');
+    } catch (err) { toast(err.message, true); b.disabled = false; b.textContent = 'Enviar solicitud'; }
+  };
+  pedirNotificaciones();
+}
+
+/* =========================================================
+   SUPERVISIÓN · PANEL
+   ========================================================= */
+async function vPanel(v) {
+  const [r, t] = await Promise.all([api('registros', { desde: new Date(Date.now() - 45 * 864e5).toISOString(), limit: 5000 }), api('tickets')]);
+  const hoy = new Date(); hoy.setHours(0, 0, 0, 0);
+  const rHoy = r.filter(x => new Date(x.fecha) >= hoy);
+  const ult = id => r.find(x => x.puntoId === id);
+  const pts = S.puntos.filter(p => p.activo !== false).map(p => ({ p, u: ult(p.id) })).map(o => Object.assign(o, { s: estadoPunto(o.p, o.u) }));
+  const alertasAbiertas = r.filter(x => x.alertas.length && !x.revisadoPor);
+  const vencidos = pts.filter(o => o.s.t === 'Vencida' || (o.s.t === 'Sin registros' && o.s.c === 'warn'));
+  const porRevisar = r.filter(x => !x.revisadoPor);
+  const abiertos = t.filter(x => ['Enviado', 'Aceptado', 'En proceso', 'Reabierto'].includes(x.estado));
+  const sinAsig = t.filter(x => x.estado === 'Enviado' && !x.asignadoA);
+  v.innerHTML = `
+  <div class="head"><div><div class="eyebrow">${esc(ROLES[S.user.rol])} · ${new Date().toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long' })}</div><h1>Panel de control</h1></div>
+    <button class="btn ghost sm" id="bRef">Actualizar</button></div>
+  <div class="kpis">
+    <div class="kpi"><div class="n">${rHoy.length}</div><div class="l">Registros de hoy</div></div>
+    <div class="kpi ${alertasAbiertas.length ? 'alert' : ''}"><div class="n">${alertasAbiertas.length}</div><div class="l">Alertas sin revisar</div></div>
+    <div class="kpi ${vencidos.length ? 'attn' : ''}"><div class="n">${vencidos.length}</div><div class="l">Revisiones vencidas</div></div>
+    <div class="kpi"><div class="n">${porRevisar.length}</div><div class="l">Registros por firmar</div></div>
+    <div class="kpi ${sinAsig.length ? 'attn' : ''}"><div class="n">${abiertos.length}</div><div class="l">Tickets abiertos · ${sinAsig.length} sin asignar</div></div>
+  </div>
+  ${alertasAbiertas.length ? `<section class="sect" style="margin-bottom:18px"><h2>Alertas sin revisar</h2><div class="list">${alertasAbiertas.slice(0, 12).map(x => `<button class="item" data-reg="${esc(x.id)}"><span class="stripe s-bad"></span><div class="body"><div class="row" style="justify-content:space-between"><span class="code">${esc(codigoDe(x.formato))} · ${esc(x.puntoId || x.datos.area || '')}</span><span class="m">${fmtCorta(x.fecha)}</span></div><div class="t">${esc(x.alertas.join(' · '))}</div><div class="m">${esc(x.ubicacion || '')} · ${esc(x.usuarioNombre)}</div></div></button>`).join('')}</div></section>` : ''}
+  <section class="sect"><h2>Estado por bitácora</h2>
+  <div class="fmtgrid">${ORDEN_FORMATOS.map(f => {
+    const F = FORMATOS[f]; const ps = pts.filter(o => o.p.formato === f);
+    if (F.libre) { const n = r.filter(x => x.formato === f); return `<section class="fmt"><header><div><div class="code">${esc(codigoDe(f))}</div><h3>${esc(F.corto)}</h3></div><button class="btn ghost sm" data-ver="${f}">Ver</button></header><div class="pt" style="cursor:default"><div class="body m">${n.length} registros en 45 días · ${n.filter(x => !x.revisadoPor).length} por firmar</div></div></section>`; }
+    if (!ps.length) return '';
+    return `<section class="fmt"><header><div><div class="code">${esc(codigoDe(f))}</div><h3>${esc(F.corto)}</h3></div><button class="btn ghost sm" data-ver="${f}">Ver</button></header>
+    ${ps.map(o => `<button class="pt" data-ult="${esc(o.u ? o.u.id : '')}" data-pt="${esc(o.p.id)}"><span class="dot s-${o.s.c}"></span><div class="body"><b>${esc(o.p.nombre)}</b><div class="m">${esc(o.p.id)} · ${esc(o.p.ubicacion)}</div></div><div style="text-align:right"><span class="chip ${o.s.c}">${o.s.t}</span><div class="m" style="margin-top:2px">${hace(o.u && o.u.fecha)}</div></div></button>`).join('')}</section>`; }).join('')}</div></section>
+  <section class="sect" style="margin-top:18px"><div class="head" style="margin:0"><h2>Por firmar de revisión</h2>${porRevisar.length ? `<button class="btn ok sm" id="bFirmarSel">Firmar seleccionados</button>` : ''}</div>
+    ${porRevisar.length ? `<div class="tbl-wrap"><table><thead><tr><th><input type="checkbox" id="selTodo" aria-label="Seleccionar todos"></th><th>Fecha</th><th>Bitácora</th><th>Punto o área</th><th>Realizó</th><th>Alertas</th></tr></thead><tbody>
+    ${porRevisar.slice(0, 80).map(x => `<tr class="${x.alertas.length ? 'alerta' : ''}"><td><input type="checkbox" class="selR" value="${esc(x.id)}" ${x.alertas.length ? '' : 'checked'} aria-label="Seleccionar"></td><td style="white-space:nowrap">${fmtCorta(x.fecha)}</td><td>${esc(FORMATOS[x.formato].corto)}</td><td class="click" data-reg="${esc(x.id)}"><a href="#" onclick="return false">${esc(x.puntoId || x.datos.area || '')}</a></td><td>${esc(x.usuarioNombre)}</td><td>${x.alertas.length ? `<span class="chip bad">${x.alertas.length}</span>` : '—'}</td></tr>`).join('')}
+    </tbody></table></div><p class="hint" style="margin:0">Los registros con alerta no se preseleccionan: ábrelos para revisarlos uno por uno.</p>` : '<div class="empty">Todo está revisado y firmado.</div>'}
+  </section>
+  <section class="sect" style="margin-top:18px"><h2>Tickets abiertos</h2>
+    <div class="list" style="max-width:860px">${abiertos.slice(0, 8).map(x => `<button class="item" data-folio="${esc(x.folio)}"><span class="stripe p-${esc(x.prioridad)}"></span><div class="body"><div class="row" style="justify-content:space-between"><span class="code">${esc(x.folio)}</span>${chipTicket(x.estado)}</div><div class="t">${esc(x.categoria)} · ${esc(x.area)}</div><div class="m">${fmtCorta(x.fecha)} · ${x.asignadoNombre ? esc(x.asignadoNombre) : 'Sin asignar'}</div></div></button>`).join('') || `<div class="empty">Sin tickets abiertos.</div>`}</div>
+  </section>`;
+  const refrescar = () => go('panel');
+  $('#bRef').onclick = refrescar;
+  v.querySelectorAll('[data-reg]').forEach(b => b.onclick = () => abrirRegistro(r.find(x => x.id === b.dataset.reg), refrescar));
+  v.querySelectorAll('[data-pt]').forEach(b => b.onclick = () => { const u = r.find(x => x.id === b.dataset.ult); u ? abrirRegistro(u, refrescar) : abrirPunto(b.dataset.pt); });
+  v.querySelectorAll('[data-ver]').forEach(b => b.onclick = () => { S.verFormato = b.dataset.ver; go('bitacoras'); });
+  v.querySelectorAll('[data-folio]').forEach(b => b.onclick = () => abrirTicket(t.find(x => x.folio === b.dataset.folio)));
+  const st = $('#selTodo'); if (st) st.onchange = () => v.querySelectorAll('.selR').forEach(c => c.checked = st.checked);
+  const bf = $('#bFirmarSel'); if (bf) bf.onclick = () => firmarLote([...v.querySelectorAll('.selR:checked')].map(c => c.value), refrescar);
+}
+async function firmarLote(ids, despues) {
+  if (!ids.length) return toast('Selecciona al menos un registro', true);
+  if (!(await asegurarFirma())) return;
+  try { const r = await api('revisarRegistros', { ids, comentario: '' }); toast(`${r.revisados} registros firmados como revisados`); despues && despues(); }
+  catch (e) { toast(e.message, true); }
+}
+
+/* ---------- Bitácoras por formato y mes, con impresión del formato oficial ---------- */
+function columnasDe(fmt, conPunto) {
+  const F = FORMATOS[fmt];
+  return [{ h: 'Fecha', v: r => fDia(r.fecha) }, { h: 'Hora', v: r => fHora(r.fecha) }]
+    .concat(conPunto ? [{ h: F.colPunto || 'Punto', v: r => r.puntoId }, { h: 'Ubicación', v: r => r.ubicacion }] : [])
+    .concat(F.campos.map(c => ({ h: c.col || c.l, c, v: r => { const t = valorTxt(c, puntoDe(r.puntoId), r.datos); return t === '—' ? '' : t; } })));
+}
+async function vBitacoras(v) {
+  const fmt0 = S.verFormato || ORDEN_FORMATOS[0]; S.verFormato = null;
+  const sedes = [...new Set(S.puntos.map(p => p.sede).filter(Boolean))];
+  const mesAct = new Date().toISOString().slice(0, 7);
+  v.innerHTML = `
+  <div class="head"><div><div class="eyebrow">Consulta, revisión e impresión</div><h1>Bitácoras</h1></div>
+    <div class="row"><button class="btn ghost sm" id="bCsv">Exportar CSV</button><button class="btn sm" id="bPrint">Imprimir formato</button></div></div>
+  <div class="filters">
+    <select id="fFmt" aria-label="Formato">${ORDEN_FORMATOS.map(f => `<option value="${f}" ${f === fmt0 ? 'selected' : ''}>${esc(f.startsWith('FO') ? f.replace('FO-SLH-', '') + ' · ' : '')}${esc(FORMATOS[f].corto)}</option>`).join('')}</select>
+    <select id="fSede" aria-label="Sede"><option value="">Todas las sedes</option>${sedes.map(s => `<option>${esc(s)}</option>`).join('')}</select>
+    <select id="fPunto" aria-label="Punto"></select>
+    <input type="month" id="fMes" value="${mesAct}" aria-label="Mes">
+    <label class="chk"><input type="checkbox" id="fAl">Solo con alertas</label>
+  </div>
+  <div id="res"><div class="muted">Cargando…</div></div>`;
+  let filas = [];
+  const llenarPuntos = () => { const f = $('#fFmt').value; const ps = S.puntos.filter(p => p.formato === f); $('#fPunto').innerHTML = `<option value="">${FORMATOS[f].libre ? 'Todas las áreas' : 'Todos los puntos'}</option>` + ps.map(p => `<option value="${esc(p.id)}">${esc(p.id)} · ${esc(p.ubicacion)}</option>`).join(''); $('#fPunto').hidden = !ps.length; };
+  const cargar = async () => {
+    const f = $('#fFmt').value; const [y, m] = $('#fMes').value.split('-').map(Number);
+    const desde = new Date(y, m - 1, 1).toISOString(), hasta = new Date(y, m, 1).toISOString();
+    $('#res').innerHTML = '<div class="muted">Cargando…</div>';
+    const r = await api('registros', { formato: f, desde, hasta, limit: 5000 });
+    const sede = $('#fSede').value, pt = $('#fPunto').value, al = $('#fAl').checked;
+    filas = r.filter(x => (!sede || x.sede === sede) && (!pt || x.puntoId === pt) && (!al || x.alertas.length)).sort((a, b) => a.fecha.localeCompare(b.fecha));
+    const conPunto = !FORMATOS[f].libre && !pt;
+    const cols = columnasDe(f, conPunto);
+    const pend = filas.filter(x => !x.revisadoPor);
+    $('#res').innerHTML = `<div class="row" style="justify-content:space-between;margin-bottom:8px"><span class="muted">${filas.length} registros · ${pend.length} por firmar de revisión</span>${pend.length ? `<button class="btn ok sm" id="bFirmarMes">Firmar revisión de ${pend.filter(x => !x.alertas.length).length} sin alertas</button>` : ''}</div>` +
+      (filas.length ? `<div class="tbl-wrap"><table><thead><tr>${cols.map(c => `<th>${esc(c.h)}</th>`).join('')}<th>Realizó</th><th>Revisó</th></tr></thead><tbody>
+      ${filas.map(x => `<tr class="click ${x.alertas.length ? 'alerta' : ''}" data-reg="${esc(x.id)}">${cols.map(c => `<td class="${c.c && (c.c.t === 'num' || c.c.t === 'int') ? 'num' : ''} ${c.c && fueraDe(c.c, puntoDe(x.puntoId), x.datos) ? 'out' : ''}">${esc(c.v(x)).slice(0, 140)}</td>`).join('')}<td>${esc(x.usuarioNombre)}</td><td>${x.revisadoPor ? esc(x.revisorNombre) : '<span class="chip info">Pendiente</span>'}</td></tr>`).join('')}
+      </tbody></table></div>` : `<div class="empty">No hay registros de este formato en el periodo.</div>`);
+    $('#res').querySelectorAll('[data-reg]').forEach(t => t.onclick = () => abrirRegistro(filas.find(x => x.id === t.dataset.reg), cargar));
+    const bfm = $('#bFirmarMes'); if (bfm) bfm.onclick = () => firmarLote(pend.filter(x => !x.alertas.length).map(x => x.id), cargar);
+  };
+  $('#fFmt').onchange = () => { llenarPuntos(); cargar(); };
+  ['fSede', 'fPunto', 'fMes', 'fAl'].forEach(id => $('#' + id).onchange = cargar);
+  $('#bCsv').onclick = () => { const f = $('#fFmt').value; const cols = columnasDe(f, !FORMATOS[f].libre); descargarCSV(`${f}_${$('#fMes').value}.csv`, [cols.map(c => c.h).concat(['Alertas', 'Realizó', 'Revisó', 'Fecha de revisión', 'Folio ticket']), ...filas.map(x => cols.map(c => c.v(x)).concat([x.alertas.join(' | '), x.usuarioNombre, x.revisorNombre, x.fechaRevision ? fmtFecha(x.fechaRevision) : '', x.folio]))]); };
+  $('#bPrint').onclick = () => imprimirFormato($('#fFmt').value, filas, $('#fMes').value, $('#fSede').value, $('#fPunto').value);
+  llenarPuntos(); await cargar();
+}
+function imprimirFormato(fmt, filas, mes, sede, pt) {
+  const F = FORMATOS[fmt]; const conPunto = !F.libre && !pt; const cols = columnasDe(fmt, conPunto);
+  const [y, m] = mes.split('-').map(Number);
+  const mesTxt = new Date(y, m - 1, 1).toLocaleDateString('es-MX', { month: 'long', year: 'numeric' });
+  const p = pt ? puntoDe(pt) : null;
+  const firmaC = F.campos.find(c => c.t === 'firma');
+  $('#printArea').innerHTML = `<div class="pf">
+    <div class="ph"><div class="org">Saint Luke's<small>HOSPITALS</small></div><div class="ttl"><div class="c">${esc(F.sinCodigo ? 'Registro interno' : fmt)}</div><b>${esc(F.titulo)}</b></div></div>
+    <div class="meta"><span>Mes y año: ${esc(mesTxt)}</span>${sede ? `<span>Sede: ${esc(sede)}</span>` : ''}${p ? `<span>${esc(F.colPunto || 'Punto')}: ${esc(p.id)} · ${esc(p.ubicacion)}</span>` : ''}</div>
+    <table><thead><tr>${cols.filter(c => !c.c || c.c.t !== 'firma').map(c => `<th>${esc(c.h)}</th>`).join('')}${firmaC ? `<th>${esc(firmaC.col)}</th>` : ''}<th>Nombre y firma quien realizó</th><th>Nombre y firma quien revisó</th></tr></thead><tbody>
+    ${filas.map(x => `<tr>${cols.filter(c => !c.c || c.c.t !== 'firma').map(c => `<td class="${c.c && fueraDe(c.c, puntoDe(x.puntoId), x.datos) ? 'out' : ''}">${esc(c.v(x))}</td>`).join('')}
+      ${firmaC ? `<td>${esc(x.datos[firmaC.k + 'Nombre'] || '')}<br>${firmaImg(x.datos[firmaC.k])}</td>` : ''}
+      <td>${esc(x.usuarioNombre)}<br>${firmaImg(x.firmaRealizo)}</td><td>${x.revisadoPor ? esc(x.revisorNombre) + '<br>' + firmaImg(x.firmaReviso) : ''}</td></tr>`).join('') || `<tr><td colspan="${cols.length + 3}">Sin registros en el periodo.</td></tr>`}
+    </tbody></table>
+    <div class="foot">${F.nota ? esc(F.nota) + ' ' : ''}Registro electrónico con fecha y hora del servidor y firma de quien realizó y revisó. Generado ${fmtFecha(new Date().toISOString())} desde Mantenimiento SLH.</div></div>`;
+  document.body.classList.add('printing');
+  const fin = () => { document.body.classList.remove('printing'); window.removeEventListener('afterprint', fin); };
+  window.addEventListener('afterprint', fin);
+  setTimeout(() => { window.print(); setTimeout(fin, 1500); }, 300);
+}
+
+/* ---------- Puntos de revisión y etiquetas QR ---------- */
+function urlPunto(id) { return location.origin + location.pathname + '?eq=' + encodeURIComponent(id); }
+async function vPuntos(v) {
+  const r = await api('registros', { desde: new Date(Date.now() - 45 * 864e5).toISOString(), limit: 5000 });
+  v.innerHTML = `
+  <div class="head noprint"><div><div class="eyebrow">Catálogo</div><h1>Puntos de revisión y QR</h1><p class="muted" style="margin:4px 0 0">Cada punto tiene su etiqueta QR y abre su bitácora: un manifold, un minisplit, la planta, la cisterna o un cilindro.</p></div>
+    <div class="row"><button class="btn ghost sm" id="bEtiq">Etiquetas para imprimir</button><button class="btn gold sm" id="bNuevo">Agregar punto</button></div></div>
+  <div class="tbl-wrap noprint"><table><thead><tr><th>ID</th><th>Punto</th><th>Bitácora</th><th>Sede · ubicación</th><th>Frecuencia</th><th>Estado</th><th></th></tr></thead><tbody>
+  ${ORDEN_FORMATOS.flatMap(f => S.puntos.filter(p => p.formato === f)).map(p => { const u = r.find(x => x.puntoId === p.id); const s = estadoPunto(p, u); return `<tr><td class="mono" style="white-space:nowrap">${esc(p.id)}</td><td>${esc(p.nombre)}</td><td><span class="code">${esc(codigoDe(p.formato))}</span><div class="muted" style="font-size:13px">${esc(FORMATOS[p.formato].corto)}</div></td><td>${esc(p.sede)}<div class="muted" style="font-size:13px">${esc(p.ubicacion)}</div></td><td style="white-space:nowrap">${txtFreq(frecuenciaDe(p))}</td><td>${p.activo === false ? '<span class="chip plain">Inactivo</span>' : `<span class="chip ${s.c}">${s.t}</span>`}</td><td><div class="row" style="flex-wrap:nowrap"><button class="btn ghost sm" data-ver="${esc(p.id)}">Abrir</button><button class="btn ghost sm" data-ed="${esc(p.id)}">Editar</button></div></td></tr>`; }).join('')}
+  </tbody></table></div>
+  <div id="etiq"></div>`;
+  v.querySelectorAll('[data-ver]').forEach(b => b.onclick = () => abrirPunto(b.dataset.ver));
+  v.querySelectorAll('[data-ed]').forEach(b => b.onclick = () => editarPunto(puntoDe(b.dataset.ed)));
+  $('#bNuevo').onclick = () => editarPunto(null);
+  $('#bEtiq').onclick = () => {
+    const box = $('#etiq');
+    box.innerHTML = `<div class="head noprint" style="margin-top:20px"><h2>Etiquetas</h2><button class="btn sm" id="bPrintE">Imprimir</button></div>
+    <p class="muted noprint" style="margin-top:0">Cada código abre la bitácora del punto en esta app. Imprime en papel adhesivo y enmica las que van en zonas húmedas.</p>
+    <div class="labels">${S.puntos.filter(p => p.activo !== false).map(p => `<div class="label"><small>${esc(CONFIG.ORG)} · Mantenimiento</small><div class="qr" data-qr="${esc(p.id)}"></div><div class="lid">${esc(p.id)}</div><b>${esc(p.nombre)}</b><small>${esc(p.ubicacion)}</small><small>${esc(codigoDe(p.formato))}</small></div>`).join('')}</div>`;
+    box.querySelectorAll('[data-qr]').forEach(el => { if (typeof QRCode !== 'undefined') new QRCode(el, { text: urlPunto(el.dataset.qr), width: 280, height: 280, correctLevel: QRCode.CorrectLevel.M }); else el.textContent = urlPunto(el.dataset.qr); });
+    $('#bPrintE').onclick = () => window.print();
+    box.scrollIntoView({ behavior: 'smooth' });
+  };
+}
+function editarPunto(p) {
+  const nuevo = !p; p = p || { id: '', nombre: '', formato: 'FO-SLH-MTO-005', sede: S.user.sede || '', ubicacion: '', unidad: 'psi', limites: {}, frecuenciaHoras: '', activo: true };
+  const limitesHTML = fmt => {
+    const cs = FORMATOS[fmt].campos.filter(c => c.t === 'num' || c.t === 'int');
+    if (!cs.length) return '<p class="hint" style="margin:0">Este formato no tiene lecturas numéricas.</p>';
+    return `<div class="tbl-wrap"><table><thead><tr><th>Lectura</th><th>Mínimo</th><th>Máximo</th></tr></thead><tbody>${cs.map(c => { const L = (p.limites && p.limites[c.k]) || c.lim || ['', '']; return `<tr><td>${esc(c.g ? c.g + ' · ' + c.l : c.l)} <span class="muted">${esc(unidadDe(c, p))}</span></td><td><input type="number" step="any" data-lmin="${c.k}" value="${esc(L[0] ?? '')}" style="min-width:80px"></td><td><input type="number" step="any" data-lmax="${c.k}" value="${esc(L[1] ?? '')}" style="min-width:80px"></td></tr>`; }).join('')}</tbody></table></div><p class="hint" style="margin:0">Fuera de estos valores se genera una alerta. Deja en blanco lo que no tenga límite.</p>`;
+  };
+  sheet(`<h2>${nuevo ? 'Agregar punto de revisión' : 'Editar ' + esc(p.id)}</h2>
+  <form id="fPt" class="stack" style="margin-top:12px">
+    <div class="grid2">
+      <label class="f">ID (va en el QR)<input type="text" id="pId" value="${esc(p.id)}" ${nuevo ? '' : 'readonly'} required placeholder="SLH-AC-04" autocapitalize="characters"></label>
+      <label class="f">Nombre<input type="text" id="pNom" value="${esc(p.nombre)}" required placeholder="Minisplit 12,000 BTU"></label>
+      <label class="f">Bitácora que se llena<select id="pFmt">${ORDEN_FORMATOS.filter(f => !FORMATOS[f].libre).map(f => `<option value="${f}" ${f === p.formato ? 'selected' : ''}>${esc(codigoDe(f))} · ${esc(FORMATOS[f].corto)}</option>`).join('')}</select></label>
+      <label class="f">Frecuencia de revisión (horas) <small>Vacío = la del formato; 0 = según se requiera</small><input type="number" id="pFrec" value="${esc(p.frecuenciaHoras)}" min="0"></label>
+      <label class="f">Sede<input type="text" id="pSede" value="${esc(p.sede)}" required></label>
+      <label class="f">Ubicación<input type="text" id="pUbi" value="${esc(p.ubicacion)}" required></label>
+      <label class="f" id="pUniBox">Unidad de presión<select id="pUni">${['psi', 'kg/cm²', 'bar', 'kPa'].map(u => `<option ${u === p.unidad ? 'selected' : ''}>${u}</option>`).join('')}</select></label>
+    </div>
+    <div class="stack" style="gap:8px"><span class="eyebrow">Rangos de alerta</span><div id="pLim"></div></div>
+    <label class="chk"><input type="checkbox" id="pAct" ${p.activo !== false ? 'checked' : ''}>Punto activo</label>
+    <button class="btn gold block">Guardar punto</button></form>`, (bg, close) => {
+    const sync = () => { const f = $('#pFmt', bg).value; $('#pUniBox', bg).hidden = f !== 'PRESION'; $('#pLim', bg).innerHTML = limitesHTML(f); };
+    $('#pFmt', bg).onchange = () => { p.limites = {}; sync(); }; sync();
+    $('#fPt', bg).onsubmit = async ev => {
+      ev.preventDefault();
+      const lim = {}; bg.querySelectorAll('[data-lmin]').forEach(i => { const k = i.dataset.lmin; const mx = bg.querySelector(`[data-lmax="${k}"]`).value; if (i.value !== '' || mx !== '') lim[k] = [i.value === '' ? '' : Number(i.value), mx === '' ? '' : Number(mx)]; });
+      try { await api('guardarPunto', { id: $('#pId', bg).value, nombre: $('#pNom', bg).value, formato: $('#pFmt', bg).value, sede: $('#pSede', bg).value, ubicacion: $('#pUbi', bg).value, unidad: $('#pFmt', bg).value === 'PRESION' ? $('#pUni', bg).value : '', limites: lim, frecuenciaHoras: $('#pFrec', bg).value === '' ? '' : Number($('#pFrec', bg).value), activo: $('#pAct', bg).checked });
+        await cargarBase(); close(); toast('Punto guardado'); go('puntos'); }
+      catch (err) { toast(err.message, true); }
+    };
+  });
+}
+
+boot();
+</script>
+</body>
+</html>
