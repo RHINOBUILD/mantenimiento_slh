@@ -7,6 +7,7 @@ Plataforma de Mantenimiento y Seguridad e Higiene de Saint Luke's Hospitals. Dig
 |---|---|---|
 | FO-SLH-MTO-005 | Manifold de oxígeno | Diaria (por turno si es necesario) |
 | FO-SLH-MTO-006 | Nitrógeno / CO2 | Diaria |
+| FO-SLH-MTO-003 | Aire / compresor | Diaria |
 | FO-SLH-MTO-007 | Agua potable en cisterna y cloro residual | Diaria |
 | FO-SLH-MTO-001 | Revisión y prueba de planta de emergencia | Semanal |
 | FO-SLH-MTO-002 | Servicios preventivos y correctivos a aires acondicionados | Según se requiera |

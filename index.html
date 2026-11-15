@@ -272,6 +272,14 @@ const FORMATOS = {
       { k: 'obs', l: 'Observaciones', col: 'Observaciones', t: 'area' }
     ]
   },
+  'FO-SLH-MTO-003': {
+    corto: 'Aire / compresor', titulo: 'Bitácora diaria de Aire / Compresor', freq: 24, fotos: 'una',
+    nota: 'Se realiza todos los días; por turno si es necesario.',
+    campos: [
+      { k: 'presionComp', l: 'Presión del compresor', col: 'Presión compresor', t: 'num', u: 'psi', req: 1 },
+      { k: 'obs', l: 'Observaciones', col: 'Observaciones', t: 'area' }
+    ]
+  },
   'FO-SLH-MTO-001': {
     corto: 'Planta de emergencia', titulo: 'Bitácora de revisión y prueba de planta de emergencia', freq: 168, fotos: 'una',
     campos: [
@@ -337,7 +345,7 @@ const FORMATOS = {
     ]
   }
 };
-const ORDEN_FORMATOS = ['FO-SLH-MTO-005', 'FO-SLH-MTO-006', 'FO-SLH-MTO-007', 'FO-SLH-MTO-001', 'FO-SLH-MTO-002', 'FO-SLH-MTO-009', 'PRESION'];
+const ORDEN_FORMATOS = ['FO-SLH-MTO-005', 'FO-SLH-MTO-006', 'FO-SLH-MTO-003', 'FO-SLH-MTO-007', 'FO-SLH-MTO-001', 'FO-SLH-MTO-002', 'FO-SLH-MTO-009', 'PRESION'];
 const ROLES_SUP = ['MANTENIMIENTO', 'SH', 'ADMIN'];
 function esSupervisor(rol) { return ROLES_SUP.indexOf(rol) >= 0; }
 function num(v) { if (v === null || v === undefined || v === '') return null; const n = parseFloat(String(v).replace(',', '.')); return isNaN(n) ? null : n; }

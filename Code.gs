@@ -6,7 +6,7 @@
  * generado del index.html) y appsscript.json.
  *
  * Hojas: Usuarios, Puntos, Registros, Tickets, Config y una hoja legible por formato
- * (FO-SLH-MTO-001, -002, -005, -006, -007, -009, PRESION) con las mismas columnas del papel.
+ * (FO-SLH-MTO-001, -002, -003, -005, -006, -007, -009, PRESION) con las mismas columnas del papel.
  * Fotos y firmas: carpeta de Drive (Config › CARPETA_FOTOS).
  *
  * La base de datos ya está preparada en la hoja SHEET_ID; el proyecto puede ser independiente o ligado a la hoja.
@@ -223,7 +223,7 @@ function crearRegistro(d, me, desdeTicket) {
     usuario: String(me.numero), usuarioNombre: me.nombre, firmaRealizo: u.firma || '', folio: d.folio || '', revisadoPor: '', revisorNombre: '', firmaReviso: '', fechaRevision: '', comentarioRevision: ''
   };
   agregar('Registros', Object.assign({}, r, { datos: JSON.stringify(datos), alertas: r.alertas.join(' | ') }));
-  hoja(d.formato).appendRow(filaLegible(r, p));
+  encabezar(libro(), d.formato, columnasLegibles(d.formato)).appendRow(filaLegible(r, p)); // crea la hoja si el formato es nuevo
   if (r.alertas.length) {
     const F2 = FORMATOS[r.formato];
     enviar(destinatarios(['SH', 'MANTENIMIENTO'], ['CORREOS_SH', 'CORREOS_MANTENIMIENTO']),
