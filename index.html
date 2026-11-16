@@ -658,9 +658,18 @@ function loginView() {
   document.querySelectorAll('.demo-users button').forEach(b => b.onclick = () => { $('#lNum').value = b.dataset.n; $('#lPin').value = '1234'; $('#fLogin').requestSubmit(); });
 }
 
+/* Paneles por sede: los puntos cuya sede empieza con el nombre (ej. "Cabo San Lucas Pioneros") entran al panel de Cabo San Lucas */
+const SEDES_PANEL = [{ k: 'csl', n: 'Cabo San Lucas', c: 'CSL' }, { k: 'sjc', n: 'San José del Cabo', c: 'SJC' }];
+function sinAcentos(s) { return String(s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim(); }
+function enSede(sede, k) { const P = SEDES_PANEL.find(x => x.k === k); return !!P && sinAcentos(sede).indexOf(sinAcentos(P.n)) === 0; }
+function panelesSede(rol) {
+  const propia = SEDES_PANEL.find(x => S.user && enSede(S.user.sede, x.k));
+  const orden = propia ? [propia].concat(SEDES_PANEL.filter(x => x !== propia)) : SEDES_PANEL;
+  return orden.map(x => [x.k, rol === 'TECNICO' ? x.n : 'Panel ' + x.c]);
+}
 function tabsPara(rol) {
-  const sup = [['panel', 'Panel'], ['bitacoras', 'Bitácoras'], ['tickets', 'Tickets'], ['puntos', 'Puntos y QR'], ['escanear', 'Escanear QR'], ['registrar', 'Registrar']];
-  return { TECNICO: [['escanear', 'Escanear QR'], ['registrar', 'Bitácoras'], ['tickets', 'Tickets'], ['historial', 'Mi historial']],
+  const sup = [['panel', 'Panel']].concat(panelesSede(rol), [['bitacoras', 'Bitácoras'], ['tickets', 'Tickets'], ['puntos', 'Puntos y QR'], ['escanear', 'Escanear QR'], ['registrar', 'Registrar']]);
+  return { TECNICO: panelesSede(rol).concat([['escanear', 'Escanear QR'], ['registrar', 'Bitácoras'], ['tickets', 'Tickets'], ['historial', 'Mi historial']]),
     AREA: [['nueva', 'Nueva solicitud'], ['tickets', 'Mis solicitudes']],
     MANTENIMIENTO: sup, SH: sup, ADMIN: sup.concat([['nueva', 'Nueva solicitud']]) }[rol] || [];
 }
@@ -692,7 +701,7 @@ function pintarTabs() {
 function go(k) {
   pararScanner(); S.tab = k; pintarTabs();
   const v = $('#view'); v.innerHTML = '<div class="muted">Cargando…</div>';
-  const R = { escanear: vEscanear, registrar: vRegistrar, tickets: vTickets, historial: vHistorial, nueva: vNuevaSolicitud, panel: vPanel, bitacoras: vBitacoras, puntos: vPuntos };
+  const R = { escanear: vEscanear, registrar: vRegistrar, tickets: vTickets, historial: vHistorial, nueva: vNuevaSolicitud, panel: vPanel, bitacoras: vBitacoras, puntos: vPuntos, csl: v => vPanelSede(v, 'csl'), sjc: v => vPanelSede(v, 'sjc') };
   Promise.resolve((R[k] || vPanel)(v)).catch(e => { v.innerHTML = `<div class="empty">${esc(e.message)}</div>`; });
 }
 
@@ -1185,6 +1194,47 @@ async function vPanel(v) {
   v.querySelectorAll('[data-folio]').forEach(b => b.onclick = () => abrirTicket(t.find(x => x.folio === b.dataset.folio)));
   const st = $('#selTodo'); if (st) st.onchange = () => v.querySelectorAll('.selR').forEach(c => c.checked = st.checked);
   const bf = $('#bFirmarSel'); if (bf) bf.onclick = () => firmarLote([...v.querySelectorAll('.selR:checked')].map(c => c.value), refrescar);
+}
+/* ---------- Panel del técnico por sede (Cabo San Lucas / San José del Cabo) ---------- */
+async function vPanelSede(v, k) {
+  const P = SEDES_PANEL.find(x => x.k === k);
+  const [r0, t0] = await Promise.all([api('registros', { desde: new Date(Date.now() - 45 * 864e5).toISOString(), limit: 5000 }), api('tickets')]);
+  const r = r0.filter(x => enSede(x.sede, k)), t = t0.filter(x => enSede(x.sede, k));
+  const hoy = new Date(); hoy.setHours(0, 0, 0, 0);
+  const rHoy = r.filter(x => new Date(x.fecha) >= hoy);
+  const pts = S.puntos.filter(p => p.activo !== false && enSede(p.sede, k)).map(p => { const u = r.find(x => x.puntoId === p.id); return { p, u, s: estadoPunto(p, u) }; });
+  const peso = o => o.s.c === 'bad' ? 0 : o.s.t === 'Vencida' ? 1 : o.s.c === 'warn' ? 2 : 3;
+  const pend = pts.filter(o => peso(o) < 3).sort((a, b) => peso(a) - peso(b));
+  const alDia = pts.filter(o => o.s.c === 'ok');
+  const abiertos = t.filter(x => ['Enviado', 'Aceptado', 'En proceso', 'Reabierto'].includes(x.estado));
+  const fila = o => `<button class="pt" data-pt="${esc(o.p.id)}"><span class="dot s-${o.s.c}"></span><div class="body"><b>${esc(o.p.nombre)}</b><div class="m">${esc(o.p.id)} · ${esc(o.p.ubicacion)} · ${esc(FORMATOS[o.p.formato].corto)}</div></div><div style="text-align:right"><span class="chip ${o.s.c}">${o.s.t}</span><div class="m" style="margin-top:2px">${hace(o.u && o.u.fecha)}</div></div></button>`;
+  v.innerHTML = `
+  <div class="head"><div><div class="eyebrow">Panel de técnicos · ${new Date().toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long' })}</div><h1>${esc(P.n)}</h1></div>
+    <div class="row"><button class="btn gold sm" id="bEsc">Escanear QR</button><button class="btn ghost sm" id="bRef">Actualizar</button></div></div>
+  <div class="kpis">
+    <div class="kpi ${pend.length ? 'attn' : ''}"><div class="n">${pend.length}</div><div class="l">Por revisar</div></div>
+    <div class="kpi ${pts.filter(o => o.s.c === 'bad').length ? 'alert' : ''}"><div class="n">${pts.filter(o => o.s.c === 'bad').length}</div><div class="l">Con alerta</div></div>
+    <div class="kpi"><div class="n">${alDia.length}<span class="muted" style="font-size:16px"> / ${pts.length}</span></div><div class="l">Puntos al día</div></div>
+    <div class="kpi"><div class="n">${rHoy.length}</div><div class="l">Registros de hoy</div></div>
+    <div class="kpi ${abiertos.some(x => x.estado === 'Enviado' && !x.asignadoA) ? 'attn' : ''}"><div class="n">${abiertos.length}</div><div class="l">Tickets abiertos</div></div>
+  </div>
+  ${!pts.length ? `<div class="empty">Aún no hay puntos de revisión dados de alta en ${esc(P.n)}.</div>` : ''}
+  ${pts.length ? `<section class="sect" style="margin-bottom:18px"><h2>Pendientes de revisar</h2>
+    ${pend.length ? `<div class="fmt">${pend.map(fila).join('')}</div>` : `<div class="empty">Todo al día en ${esc(P.n)}.</div>`}</section>` : ''}
+  <section class="sect"><h2>Puntos por bitácora</h2>
+  <div class="fmtgrid">${ORDEN_FORMATOS.map(f => {
+    const F = FORMATOS[f]; const ps = pts.filter(o => o.p.formato === f);
+    if (F.libre) { const n = r.filter(x => x.formato === f); return `<section class="fmt"><header><div><div class="code">${esc(codigoDe(f))}</div><h3>${esc(F.corto)}</h3></div><button class="btn gold sm" data-libre="${f}">Nuevo registro</button></header><div class="pt" style="cursor:default"><div class="body m">${n.length} registros en 45 días en ${esc(P.n)}.</div></div></section>`; }
+    if (!ps.length) return '';
+    return `<section class="fmt"><header><div><div class="code">${esc(codigoDe(f))}</div><h3>${esc(F.corto)}</h3></div><span class="chip plain">${txtFreq(F.freq)}</span></header>${ps.map(fila).join('')}</section>`; }).join('')}</div></section>
+  <section class="sect" style="margin-top:18px"><h2>Tickets de ${esc(P.n)}</h2>
+    <div class="list" style="max-width:860px">${abiertos.slice(0, 10).map(x => `<button class="item" data-folio="${esc(x.folio)}"><span class="stripe p-${esc(x.prioridad)}"></span><div class="body"><div class="row" style="justify-content:space-between"><span class="code">${esc(x.folio)}</span>${chipTicket(x.estado)}</div><div class="t">${esc(x.categoria)} · ${esc(x.area)}</div><div class="m">${fmtCorta(x.fecha)} · ${esc(x.ubicacion || '')} · ${x.asignadoNombre ? esc(x.asignadoNombre) : 'Sin asignar'}</div></div></button>`).join('') || `<div class="empty">Sin tickets abiertos.</div>`}</div>
+  </section>`;
+  $('#bRef').onclick = () => go(k);
+  $('#bEsc').onclick = () => go('escanear');
+  v.querySelectorAll('[data-pt]').forEach(b => b.onclick = () => abrirPunto(b.dataset.pt));
+  v.querySelectorAll('[data-libre]').forEach(b => b.onclick = () => abrirFormulario(b.dataset.libre, null, []));
+  v.querySelectorAll('[data-folio]').forEach(b => b.onclick = () => abrirTicket(t.find(x => x.folio === b.dataset.folio)));
 }
 async function firmarLote(ids, despues) {
   if (!ids.length) return toast('Selecciona al menos un registro', true);
